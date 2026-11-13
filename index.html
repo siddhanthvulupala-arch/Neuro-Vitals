@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEURO VITALS // Flight-Certified Orbital Biomedical & BCI Instrument — NASA Space Apps 2026</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Fonts: Inter (SF Pro Display / Text metric equivalent) & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          colors: {
+            appleBg: '#06070A',
+            appleSurface: '#0C0E14',
+            appleElevated: '#131620',
+            appleGreen: '#30D158',
+            appleAmber: '#FF9F0A',
+            appleRed: '#FF453A',
+            appleBlue: '#0A84FF',
+            appleCyan: '#64D2FF',
+            applePurple: '#BF5AF2'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    body {
+      background-color: #06070A;
+      color: #F5F5F7;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -15%, rgba(10, 132, 255, 0.10), transparent),
+        radial-gradient(ellipse 60% 40% at 85% 100%, rgba(100, 210, 255, 0.05), transparent);
+      overflow-x: hidden;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Apple visionOS / watchOS Specular Glass Material */
+    .apple-glass {
+      background: linear-gradient(180deg, rgba(22, 25, 35, 0.78) 0%, rgba(12, 14, 20, 0.86) 100%);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+        0 12px 32px -8px rgba(0, 0, 0, 0.65);
+    }
+
+    .apple-glass-subtle {
+      background: rgba(19, 22, 32, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .apple-glass-caution {
+      background: linear-gradient(180deg, rgba(42, 28, 10, 0.78) 0%, rgba(18, 14, 10, 0.88) 100%);
+      border: 1px solid rgba(255, 159, 10, 0.42);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 159, 10, 0.25),
+        0 10px 28px -8px rgba(255, 159, 10, 0.18);
+    }
+
+    .apple-glass-critical {
+      background: linear-gradient(180deg, rgba(46, 14, 18, 0.82) 0%, rgba(20, 10, 12, 0.90) 100%);
+      border: 1px solid rgba(255, 69, 58, 0.52);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 69, 58, 0.30),
+        0 10px 30px -6px rgba(255, 69, 58, 0.24);
+    }
+
+    /* Segmented Control Pill */
+    .segmented-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    /* Subtle Clinical Grid for Oscilloscope & Anatomy */
+    .clinical-grid {
+      background-color: #07090E;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to right, rgba(10, 132, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(10, 132, 255, 0.06) 1px, transparent 1px);
+      background-size: 16px 16px, 16px 16px, 80px 80px, 80px 80px;
+    }
+
+    /* Anatomical Node Ring Pulse */
+    @keyframes clinicalPulse {
+      0% { transform: scale(1); opacity: 0.85; }
+      75% { transform: scale(1.85); opacity: 0; }
+      100% { transform: scale(1.85); opacity: 0; }
+    }
+    .node-pulse {
+      transform-origin: center;
+      transform-box: fill-box;
+      animation: clinicalPulse 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #06070A; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.16); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-[#0A84FF]/30 selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TOP FLIGHT TELEMETRY BAR (Apple visionOS / Crew Dragon Medical Header) -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-40 border-b border-white/[0.08] bg-[#06070A]/85 backdrop-blur-2xl">
+    <div class="max-w-[1720px] mx-auto px-4 sm:px-6 py-2.5 flex flex-col gap-2.5">
+
+      <!-- Top Row: Identity, Crew Switcher, Mission Telemetry, Actions -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Brand Identity -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-b from-[#0A84FF]/25 to-[#0A84FF]/5 border border-[#0A84FF]/40 flex items-center justify-center shadow-inner shrink-0">
+            <svg class="w-5 h-5 text-[#64D2FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l2.954-2.955c.44-.439 1.152-.439 1.591 0L9.75 12m0 0l2.955 2.955c.44.439 1.152.439 1.591 0L17.25 12m-7.5 0V3.75m7.5 8.25l2.955-2.955c.44-.439 1.152-.439 1.591 0L21.75 12M12 20.25v-4.5" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm sm:text-base font-semibold tracking-tight text-white">
+                Neuro Vitals
+              </span>
+              <span class="text-white/25 font-light">/</span>
+              <span class="text-xs font-mono uppercase tracking-wider text-[#64D2FF] font-medium">
+                HRP-BCI Flight Medical System
+              </span>
+              <span class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-white/[0.06] text-white/75 border border-white/[0.08]">
+                NASA OSDR CALIBRATED
+              </span>
+            </div>
+            <div class="flex items-center gap-3 text-[11px] text-white/50 font-mono tabular-nums mt-0.5">
+              <span id="met-clock">MET 142:08:44:19</span>
+              <span>•</span>
+              <span>OWLT DELAY: <strong class="text-[#FF9F0A]">14m 22s</strong> (AUTONOMOUS EDGE MODE)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Crew Member Segmented Switcher -->
+        <div class="segmented-pill p-1 rounded-xl flex items-center gap-1">
+          <button data-crew="vance" class="crew-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-white/[0.12] text-white shadow-sm flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#30D158]" id="crew-dot-vance"></span>
+            <span>CDR E. Vance</span>
+            <span class="text-[10px] font-mono text-white/50 hidden md:inline">EVA-1</span>
+          </button>
+          <button data-crew="chen" class="crew-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-white/60 hover:text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#30D158]" id="crew-dot-chen"></span>
+            <span>MS-1 M. Chen</span>
+            <span class="text-[10px] font-mono text-white/50 hidden md:inline">PAYLOAD</span>
+          </button>
+          <button data-crew="thorne" class="crew-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-white/60 hover:text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#30D158]" id="crew-dot-thorne"></span>
+            <span>FLT Dr. A. Thorne</span>
+            <span class="text-[10px] font-mono text-white/50 hidden md:inline">SURGEON</span>
+          </button>
+        </div>
+
+        <!-- Cabin Environmental Telemetry & Utility Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="hidden xl:flex items-center gap-3 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.07] text-[11px] font-mono tabular-nums text-white/75">
+            <span>ppO₂: <strong id="env-ppo2" class="text-[#30D158]">3.42 psi (21.2%)</strong></span>
+            <span class="text-white/20">|</span>
+            <span>ppCO₂: <strong id="env-ppco2" class="text-[#30D158]">2.1 mmHg</strong></span>
+            <span class="text-white/20">|</span>
+            <span>TEPC Flux: <strong id="env-rad" class="text-[#64D2FF]">0.42 mSv/d</strong></span>
+          </div>
+
+          <button id="open-osdr-modal" class="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-white/90 transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-[#64D2FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            <span>OSDR Reference</span>
+          </button>
+
+          <button id="export-log-btn" class="px-3 py-1.5 rounded-xl bg-[#0A84FF]/20 hover:bg-[#0A84FF]/30 border border-[#0A84FF]/40 text-xs font-medium text-[#64D2FF] transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span>Export Clinical Log</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom Row: 4 Clinical Scenario Simulation Presets -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/[0.06]">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-mono uppercase tracking-wider text-white/45">
+            Clinical State Simulation:
+          </span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 w-full lg:w-auto flex-1 max-w-5xl">
+          <button data-scenario="nominal" class="scenario-btn px-3 py-1.5 rounded-xl text-left transition-all border border-[#30D158]/45 bg-[#30D158]/10 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-semibold text-white">1. Nominal Orbital Transit</div>
+              <div class="text-[10px] font-mono text-white/55">Homeostatic 0g baseline • BCI 99.4%</div>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-[#30D158]"></span>
+          </button>
+
+          <button data-scenario="hypercapnia" class="scenario-btn px-3 py-1.5 rounded-xl text-left transition-all border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.05] flex items-center justify-between">
+            <div>
+              <div class="text-xs font-semibold text-white">2. EVA CO₂ Washout &amp; Hypoxia</div>
+              <div class="text-[10px] font-mono text-white/55">ETCO₂ 48 mmHg • SpO₂ 88% • Theta Surge</div>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-[#FF453A]"></span>
+          </button>
+
+          <button data-scenario="spe" class="scenario-btn px-3 py-1.5 rounded-xl text-left transition-all border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.05] flex items-center justify-between">
+            <div>
+              <div class="text-xs font-semibold text-white">3. SPE Solar Particle Storm (G4)</div>
+              <div class="text-[10px] font-mono text-white/55">4.85 mSv/hr Flux • ALC Lymphocyte Drop</div>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-[#FF9F0A]"></span>
+          </button>
+
+          <button data-scenario="sans" class="scenario-btn px-3 py-1.5 rounded-xl text-left transition-all border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.05] flex items-center justify-between">
+            <div>
+              <div class="text-xs font-semibold text-white">4. SANS &amp; Circadian Desynchrony</div>
+              <div class="text-[10px] font-mono text-white/55">RNFL 412 µm Edema • IOP 21 mmHg</div>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-[#FF9F0A]"></span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN 3-COLUMN CLINICAL INSTRUMENT WORKSPACE                               -->
+  <!-- ========================================================================= -->
+  <main class="max-w-[1720px] mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+    <!-- ======================================================================= -->
+    <!-- LEFT COLUMN (4 Cols): PRECISION ANATOMICAL & ORGAN-SYSTEM SCANNER       -->
+    <!-- ======================================================================= -->
+    <section class="lg:col-span-4 flex flex-col gap-5">
+
+      <!-- Anatomical Schematic Card -->
+      <div class="apple-glass rounded-2xl p-4 flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-semibold tracking-tight text-white">
+                Anatomical System Telemetry
+              </h2>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-white/[0.06] text-white/70">
+                6 NODE ARRAY
+              </span>
+            </div>
+            <p class="text-xs text-white/50 mt-0.5">
+              Select an organ system to inspect spaceflight pathophysiology &amp; self-exam protocol
+            </p>
+          </div>
+          <span id="anatomy-global-pill" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158] border border-[#30D158]/30">
+            HOMEOSTATIC
+          </span>
+        </div>
+
+        <!-- Precision Vector Medical Schematic Viewport -->
+        <div class="relative w-full h-[370px] rounded-xl clinical-grid border border-white/[0.07] overflow-hidden flex items-center justify-center">
+
+          <!-- Technical Corner Coordinates -->
+          <div class="absolute top-2.5 left-3 text-[10px] font-mono text-white/35 space-y-0.5 pointer-events-none">
+            <div>SUBJ: <span id="anat-subj-label" class="text-white/70">VANCE, E. (CDR)</span></div>
+            <div>AXIS: CORONAL ANTERIOR // 0.00 G</div>
+          </div>
+          <div class="absolute bottom-2.5 left-3 text-[10px] font-mono text-white/35 pointer-events-none">
+            REF: NASA-STD-3001 VOL.1
+          </div>
+          <div class="absolute bottom-2.5 right-3 text-[10px] font-mono text-[#64D2FF]/70 pointer-events-none">
+            CLICK NODE TO INSPECT
+          </div>
+
+          <!-- Precision Anatomical & Vascular/Neural SVG -->
+          <svg id="anatomical-svg" viewBox="0 0 320 380" class="w-full h-full max-w-[320px] select-none">
+            <defs>
+              <linearGradient id="anatomicalFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#0A84FF" stop-opacity="0.14" />
+                <stop offset="50%" stop-color="#64D2FF" stop-opacity="0.06" />
+                <stop offset="100%" stop-color="#30D158" stop-opacity="0.10" />
+              </linearGradient>
+            </defs>
+
+            <!-- Central Coronal Measurement Axis -->
+            <line x1="160" y1="12" x2="160" y2="368" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="2 4" />
+            <line x1="70" y1="115" x2="250" y2="115" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="2 4" />
+            <line x1="85" y1="195" x2="235" y2="195" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="2 4" />
+
+            <!-- Anatomical Body Contour & Skeletal/Vascular Wireframe -->
+            <g fill="url(#anatomicalFill)" stroke="rgba(255,255,255,0.28)" stroke-width="1.2">
+              <!-- Cranium & Cervical Contour -->
+              <path d="M160 22 C144 22 135 34 135 49 C135 61 142 71 148 76 L148 86 L172 86 L172 76 C178 71 185 61 185 49 C185 34 176 22 160 22 Z" />
+              <!-- Thoracic & Abdominal Torso -->
+              <path d="M148 86 L114 96 C104 99 98 107 95 118 L82 182 L94 185 L106 132 L114 132 L118 196 L112 216 L208 216 L202 196 L206 132 L214 132 L226 185 L238 182 L225 118 C222 107 216 99 206 96 L172 86 Z" />
+              <!-- Pelvis & Lower Extremities -->
+              <path d="M112 216 L116 286 L112 354 L132 354 L142 286 L154 236 L166 236 L178 286 L188 354 L208 354 L204 286 L208 216 Z" />
+            </g>
+
+            <!-- Internal Anatomical Technical Paths (Ribcage, Spine, Aorta, Cortical Tract) -->
+            <g fill="none" stroke="rgba(100, 210, 255, 0.25)" stroke-width="1">
+              <!-- Cortical Gyri & Brainstem -->
+              <path d="M144 42 C150 34 170 34 176 42 M142 50 C152 45 168 45 178 50" />
+              <line x1="160" y1="54" x2="160" y2="210" stroke="rgba(100, 210, 255, 0.32)" stroke-dasharray="3 2" />
+              <!-- Thoracic Rib Arcs -->
+              <path d="M132 106 Q160 114 188 106 M128 118 Q160 126 192 118 M126 130 Q160 138 194 130 M130 142 Q160 150 190 142" />
+              <!-- Femoral & Iliac Skeletal Axis -->
+              <path d="M132 222 L125 285 L122 346 M188 222 L195 285 L198 346" stroke="rgba(255,255,255,0.22)" />
+            </g>
+
+            <!-- NODE 1: CRANIAL / BCI + fNIRS ARRAY -->
+            <g class="anat-node cursor-pointer" data-organ="cranial" transform="translate(160, 36)">
+              <circle id="pulse-cranial" class="node-pulse" r="10" fill="none" stroke="#0A84FF" stroke-width="1.8" />
+              <circle id="dot-cranial" r="5.5" fill="#0A84FF" stroke="#FFFFFF" stroke-width="1.5" />
+              <polyline points="8,-4 28,-14 78,-14" fill="none" stroke="#64D2FF" stroke-width="1" />
+              <text x="82" y="-11" fill="#F5F5F7" font-family="JetBrains Mono" font-size="9" font-weight="600">01. BCI / fNIRS</text>
+              <text x="82" y="-1" fill="#64D2FF" font-family="JetBrains Mono" font-size="8" id="svg-val-cranial">rSO₂ 71% • EEG</text>
+            </g>
+
+            <!-- NODE 2: OCULAR / SANS -->
+            <g class="anat-node cursor-pointer" data-organ="ocular" transform="translate(147, 50)">
+              <circle id="pulse-ocular" class="node-pulse" r="9" fill="none" stroke="#30D158" stroke-width="1.6" />
+              <circle id="dot-ocular" r="5" fill="#30D158" stroke="#FFFFFF" stroke-width="1.4" />
+              <polyline points="-7,0 -26,8 -74,8" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1" />
+              <text x="-138" y="6" fill="#F5F5F7" font-family="JetBrains Mono" font-size="9" font-weight="600">02. SANS / OCT</text>
+              <text x="-138" y="16" fill="#30D158" font-family="JetBrains Mono" font-size="8" id="svg-val-ocular">IOP 14 mmHg</text>
+            </g>
+
+            <!-- NODE 3: PULMONARY & GAS EXCHANGE -->
+            <g class="anat-node cursor-pointer" data-organ="pulmonary" transform="translate(140, 114)">
+              <circle id="pulse-pulmonary" class="node-pulse" r="10" fill="none" stroke="#30D158" stroke-width="1.6" />
+              <circle id="dot-pulmonary" r="5.5" fill="#30D158" stroke="#FFFFFF" stroke-width="1.4" />
+              <polyline points="-8,0 -32,-6 -72,-6" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1" />
+              <text x="-132" y="-9" fill="#F5F5F7" font-family="JetBrains Mono" font-size="9" font-weight="600">03. PULMONARY</text>
+              <text x="-132" y="1" fill="#30D158" font-family="JetBrains Mono" font-size="8" id="svg-val-pulmonary">SpO₂ 98% • ETCO₂</text>
+            </g>
+
+            <!-- NODE 4: CARDIOVASCULAR & AUTONOMIC -->
+            <g class="anat-node cursor-pointer" data-organ="cardio" transform="translate(169, 124)">
+              <circle id="pulse-cardio" class="node-pulse" r="10" fill="none" stroke="#30D158" stroke-width="1.8" />
+              <circle id="dot-cardio" r="5.5" fill="#30D158" stroke="#FFFFFF" stroke-width="1.4" />
+              <polyline points="8,0 32,-4 68,-4" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1" />
+              <text x="72" y="-7" fill="#F5F5F7" font-family="JetBrains Mono" font-size="9" font-weight="600">04. CARDIAC</text>
+              <text x="72" y="3" fill="#30D158" font-family="JetBrains Mono" font-size="8" id="svg-val-cardio">64 BPM • HRV 68ms</text>
+            </g>
+
+            <!-- NODE 5: HEMATOLOGICAL & RADIATION DOSIMETRY -->
+            <g class="anat-node cursor-pointer" data-organ="hemato" transform="translate(144, 174)">
+              <circle id="pulse-hemato" class="node-pulse" r="9.5" fill="none" stroke="#30D158" stroke-width="1.6" />
+              <circle id="dot-hemato" r="5" fill="#30D158" stroke="#FFFFFF" stroke-width="1.4" />
+              <polyline points="-8,2 -30,12 -70,12" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1" />
+              <text x="-134" y="10" fill="#F5F5F7" font-family="JetBrains Mono" font-size="9" font-weight="600">05. DOSIMETRY</text>
+              <text x="-134" y="20" fill="#30D158" font-family="JetBrains Mono" font-size="8" id="svg-val-hemato">0.42 mSv/d • ALC</text>
+            </g>
+
+            <!-- NODE 6: MUSCULOSKELETAL & BONE REMODELING -->
+            <g class="anat-node cursor-pointer" data-organ="musculo" transform="translate(188, 255)">
+              <circle id="pulse-musculo" class="node-pulse" r="10" fill="none" stroke="#30D158" stroke-width="1.6" />
+              <circle id="dot-musculo" r="5.5" fill="#30D158" stroke="#FFFFFF" stroke-width="1.4" />
+              <polyline points="8,0 24,0 50,0" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1" />
+              <text x="54" y="-3" fill="#F5F5F7" font-family="JetBrains Mono" font-size="9" font-weight="600">06. FEMORAL BMD</text>
+              <text x="54" y="7" fill="#30D158" font-family="JetBrains Mono" font-size="8" id="svg-val-musculo">DXA -0.4% • NTX</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- 6 Organ Quick Selector Bar -->
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 mt-3">
+          <button data-organ="cranial" class="organ-tab px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-[#0A84FF]/20 text-[#64D2FF] border border-[#0A84FF]/40 text-center transition">01. BCI</button>
+          <button data-organ="ocular" class="organ-tab px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white/[0.03] text-white/60 border border-white/[0.06] hover:text-white text-center transition">02. SANS</button>
+          <button data-organ="pulmonary" class="organ-tab px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white/[0.03] text-white/60 border border-white/[0.06] hover:text-white text-center transition">03. LUNG</button>
+          <button data-organ="cardio" class="organ-tab px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white/[0.03] text-white/60 border border-white/[0.06] hover:text-white text-center transition">04. ECG</button>
+          <button data-organ="hemato" class="organ-tab px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white/[0.03] text-white/60 border border-white/[0.06] hover:text-white text-center transition">05. RAD</button>
+          <button data-organ="musculo" class="organ-tab px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white/[0.03] text-white/60 border border-white/[0.06] hover:text-white text-center transition">06. BONE</button>
+        </div>
+      </div>
+
+      <!-- Clinical Deep-Dive Inspector Card (Updates on Organ Click) -->
+      <div class="apple-glass rounded-2xl p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="px-2 py-0.5 rounded-md bg-[#0A84FF]/15 border border-[#0A84FF]/30 text-[#64D2FF] font-mono text-[10px] font-semibold uppercase tracking-wider">
+              Organ System Diagnostic Inspector
+            </span>
+            <span id="inspector-status-badge" class="text-xs font-mono font-semibold text-[#30D158]">
+              ● WITHIN NASA PEL
+            </span>
+          </div>
+
+          <h3 id="inspector-title" class="text-base font-semibold text-white tracking-tight">
+            01. Cranial / In-Helmet fNIRS + Dry-EEG BCI Array
+          </h3>
+          <p id="inspector-readout" class="text-xs font-mono text-[#64D2FF] tabular-nums mt-1">
+            rSO₂: 71.4% (PEL &gt; 60%) • (θ+α)/β Fatigue Ratio: 1.12 • Impedance: 8.4 kΩ
+          </p>
+
+          <!-- Microgravity Pathophysiology & Clinical Significance -->
+          <div class="mt-3 space-y-2.5 text-xs leading-relaxed">
+            <div class="p-3 rounded-xl apple-glass-subtle">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-mono font-semibold text-white/80 uppercase text-[10px] tracking-wider">Microgravity Pathophysiology</span>
+                <span id="inspector-nasa-ref" class="font-mono text-[10px] text-[#64D2FF]">Ref: NASA HRP / OSD-570</span>
+              </div>
+              <p id="inspector-patho" class="text-white/70">
+                Cephalad fluid shift and localized CO₂ boundary layers in microgravity reduce prefrontal cerebral oxygenation (rSO₂) and elevate frontal Theta (4–8 Hz) spectral density prior to overt cognitive impairment or syncope.
+              </p>
+            </div>
+
+            <!-- Step-by-Step Astronaut Self-Examination Protocol (Interactive Checkable) -->
+            <div class="p-3 rounded-xl apple-glass-subtle">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-mono font-semibold text-[#30D158] uppercase text-[10px] tracking-wider">Astronaut Self-Exam &amp; Verification Protocol</span>
+                <span id="inspector-step-progress" class="font-mono text-[10px] text-white/50 tabular-nums">0/3 Verified</span>
+              </div>
+              <div id="inspector-steps-container" class="space-y-1.5">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- CENTER COLUMN (5 Cols): LIVE OSCILLOSCOPE + BIOMARKERS + 24H TRENDS     -->
+    <!-- ======================================================================= -->
+    <section class="lg:col-span-5 flex flex-col gap-5">
+
+      <!-- Real-Time 60fps Multi-Channel Clinical Oscilloscope -->
+      <div class="apple-glass rounded-2xl p-4 flex flex-col">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#30D158] animate-pulse" id="scope-live-dot"></span>
+              <h2 class="text-sm font-semibold tracking-tight text-white">
+                Multi-Channel Physiological &amp; BCI Telemetry
+              </h2>
+            </div>
+            <p class="text-xs text-white/50 font-mono mt-0.5">
+              250 mm/s Sweep • 256 Hz Neural Sampling • Notch 60 Hz Active
+            </p>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button id="toggle-freeze-btn" class="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-[11px] font-mono text-white/85 transition">
+              Freeze Trace
+            </button>
+            <button id="drop-caliper-btn" class="px-2.5 py-1 rounded-lg bg-[#0A84FF]/15 hover:bg-[#0A84FF]/25 border border-[#0A84FF]/35 text-[11px] font-mono text-[#64D2FF] transition">
+              Mark Event
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Channel Canvas Viewport -->
+        <div class="relative w-full h-[250px] rounded-xl clinical-grid border border-white/[0.08] overflow-hidden p-2">
+          <!-- Channel Overlay Labels -->
+          <div class="absolute top-2.5 left-3 z-10 pointer-events-none space-y-0.5">
+            <div class="text-[10px] font-mono font-semibold text-[#30D158] flex items-center gap-2">
+              <span>CH1: ECG LEAD II (1 mV/cm)</span>
+              <span id="scope-hr-readout" class="text-white/80 tabular-nums">64 BPM • Sinus Rhythm</span>
+            </div>
+          </div>
+
+          <div class="absolute top-[92px] left-3 z-10 pointer-events-none space-y-0.5">
+            <div class="text-[10px] font-mono font-semibold text-[#64D2FF] flex items-center gap-2">
+              <span>CH2: PREFRONTAL BCI (Fp1-Fp2 µV)</span>
+              <span id="scope-bci-readout" class="text-white/80 tabular-nums">Fatigue Ratio: 1.12</span>
+            </div>
+          </div>
+
+          <div class="absolute top-[174px] left-3 z-10 pointer-events-none space-y-0.5">
+            <div class="text-[10px] font-mono font-semibold text-[#0A84FF] flex items-center gap-2">
+              <span>CH3: CAPNOGRAPHY (ETCO₂ mmHg)</span>
+              <span id="scope-co2-readout" class="text-white/80 tabular-nums">38 mmHg • RR 14/min</span>
+            </div>
+          </div>
+
+          <canvas id="clinicalScopeCanvas" class="w-full h-full block"></canvas>
+        </div>
+
+        <!-- Live BCI Spectral Power Density Strip -->
+        <div class="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-white/[0.06]">
+          <div class="p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+            <div class="flex justify-between text-[10px] font-mono text-white/50">
+              <span>THETA (4–8 Hz)</span>
+              <span id="psd-theta-val" class="text-white font-semibold tabular-nums">18%</span>
+            </div>
+            <div class="w-full h-1.5 bg-white/[0.06] rounded-full mt-1.5 overflow-hidden">
+              <div id="psd-theta-bar" class="h-full bg-[#FF453A] rounded-full transition-all duration-300" style="width: 18%"></div>
+            </div>
+            <div class="text-[9px] font-mono text-white/40 mt-1">Drowsiness / Hypoxia</div>
+          </div>
+
+          <div class="p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+            <div class="flex justify-between text-[10px] font-mono text-white/50">
+              <span>ALPHA (8–12 Hz)</span>
+              <span id="psd-alpha-val" class="text-white font-semibold tabular-nums">34%</span>
+            </div>
+            <div class="w-full h-1.5 bg-white/[0.06] rounded-full mt-1.5 overflow-hidden">
+              <div id="psd-alpha-bar" class="h-full bg-[#30D158] rounded-full transition-all duration-300" style="width: 34%"></div>
+            </div>
+            <div class="text-[9px] font-mono text-white/40 mt-1">Calm Baseline Sync</div>
+          </div>
+
+          <div class="p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+            <div class="flex justify-between text-[10px] font-mono text-white/50">
+              <span>BETA (13–30 Hz)</span>
+              <span id="psd-beta-val" class="text-white font-semibold tabular-nums">48%</span>
+            </div>
+            <div class="w-full h-1.5 bg-white/[0.06] rounded-full mt-1.5 overflow-hidden">
+              <div id="psd-beta-bar" class="h-full bg-[#0A84FF] rounded-full transition-all duration-300" style="width: 48%"></div>
+            </div>
+            <div class="text-[9px] font-mono text-white/40 mt-1">Active EVA Focus</div>
+          </div>
+
+          <div class="p-2 rounded-xl bg-white/[0.02] border border-white/[0.05]">
+            <div class="flex justify-between text-[10px] font-mono text-white/50">
+              <span>CEREBRAL rSO₂</span>
+              <span id="psd-rso2-val" class="text-[#64D2FF] font-semibold tabular-nums">71.4%</span>
+            </div>
+            <div class="w-full h-1.5 bg-white/[0.06] rounded-full mt-1.5 overflow-hidden">
+              <div id="psd-rso2-bar" class="h-full bg-[#64D2FF] rounded-full transition-all duration-300" style="width: 71%"></div>
+            </div>
+            <div class="text-[9px] font-mono text-white/40 mt-1">fNIRS Prefrontal O₂</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7 Apple-Health Grade Clinical Biomarker Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- Card 1: Heart Rate & HRV -->
+        <div id="vital-card-hr" class="apple-glass rounded-2xl p-3.5 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-white/60">Heart Rate</span>
+            <span id="vital-pill-hr" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158]">NOMINAL</span>
+          </div>
+          <div class="mt-1.5 flex items-baseline gap-1 tabular-nums">
+            <span id="vital-val-hr" class="text-2xl font-semibold tracking-tight text-white font-mono">64</span>
+            <span class="text-xs text-white/45 font-mono">BPM</span>
+          </div>
+          <div id="vital-sub-hr" class="text-[10px] font-mono text-white/50 mt-1 tabular-nums">RMSSD: 68 ms • Normal</div>
+        </div>
+
+        <!-- Card 2: SpO2 & ETCO2 -->
+        <div id="vital-card-spo2" class="apple-glass rounded-2xl p-3.5 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-white/60">SpO₂ / ETCO₂</span>
+            <span id="vital-pill-spo2" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158]">NOMINAL</span>
+          </div>
+          <div class="mt-1.5 flex items-baseline gap-1 tabular-nums">
+            <span id="vital-val-spo2" class="text-2xl font-semibold tracking-tight text-white font-mono">98%</span>
+            <span id="vital-unit-spo2" class="text-xs text-white/45 font-mono">/ 38 mmHg</span>
+          </div>
+          <div id="vital-sub-spo2" class="text-[10px] font-mono text-white/50 mt-1 tabular-nums">PEL: SpO₂ ≥ 92%</div>
+        </div>
+
+        <!-- Card 3: Arterial Blood Pressure -->
+        <div id="vital-card-bp" class="apple-glass rounded-2xl p-3.5 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-white/60">Blood Pressure</span>
+            <span id="vital-pill-bp" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158]">NOMINAL</span>
+          </div>
+          <div class="mt-1.5 flex items-baseline gap-1 tabular-nums">
+            <span id="vital-val-bp" class="text-2xl font-semibold tracking-tight text-white font-mono">116/74</span>
+            <span class="text-xs text-white/45 font-mono">mmHg</span>
+          </div>
+          <div id="vital-sub-bp" class="text-[10px] font-mono text-white/50 mt-1 tabular-nums">MAP: 88 mmHg • 0g Shift</div>
+        </div>
+
+        <!-- Card 4: SANS Ocular (RNFL & IOP) -->
+        <div id="vital-card-sans" class="apple-glass rounded-2xl p-3.5 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-white/60">Ocular (SANS)</span>
+            <span id="vital-pill-sans" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158]">NOMINAL</span>
+          </div>
+          <div class="mt-1.5 flex items-baseline gap-1 tabular-nums">
+            <span id="vital-val-sans" class="text-2xl font-semibold tracking-tight text-white font-mono">14</span>
+            <span class="text-xs text-white/45 font-mono">mmHg IOP</span>
+          </div>
+          <div id="vital-sub-sans" class="text-[10px] font-mono text-white/50 mt-1 tabular-nums">RNFL: 298 µm • ONSD 5.1mm</div>
+        </div>
+
+        <!-- Card 5: Interstitial Glucose & Core Temp -->
+        <div id="vital-card-metab" class="apple-glass rounded-2xl p-3.5 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-white/60">Glucose / Temp</span>
+            <span id="vital-pill-metab" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158]">NOMINAL</span>
+          </div>
+          <div class="mt-1.5 flex items-baseline gap-1 tabular-nums">
+            <span id="vital-val-metab" class="text-2xl font-semibold tracking-tight text-white font-mono">91</span>
+            <span id="vital-unit-metab" class="text-xs text-white/45 font-mono">mg/dL • 36.8°C</span>
+          </div>
+          <div id="vital-sub-metab" class="text-[10px] font-mono text-white/50 mt-1 tabular-nums">Fasting euglycemic</div>
+        </div>
+
+        <!-- Card 6: Circadian Sleep Architecture -->
+        <div id="vital-card-sleep" class="apple-glass rounded-2xl p-3.5 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-white/60">Circadian Sleep</span>
+            <span id="vital-pill-sleep" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158]">NOMINAL</span>
+          </div>
+          <div class="mt-1.5 flex items-baseline gap-1 tabular-nums">
+            <span id="vital-val-sleep" class="text-2xl font-semibold tracking-tight text-white font-mono">7.4</span>
+            <span class="text-xs text-white/45 font-mono">hrs / 24h</span>
+          </div>
+          <div id="vital-sub-sleep" class="text-[10px] font-mono text-white/50 mt-1 tabular-nums">REM 23% • SWS 19%</div>
+        </div>
+
+        <!-- Card 7: Ionizing Radiation Dosimetry (Spans 2 cols on sm+) -->
+        <div id="vital-card-rad" class="apple-glass rounded-2xl p-3.5 transition-all col-span-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-white/60">TEPC Radiation Dosimetry &amp; Hematopoietic Index</span>
+            <span id="vital-pill-rad" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158]">NOMINAL</span>
+          </div>
+          <div class="mt-1.5 flex items-baseline justify-between gap-2 tabular-nums">
+            <div class="flex items-baseline gap-1.5">
+              <span id="vital-val-rad" class="text-2xl font-semibold tracking-tight text-white font-mono">0.42</span>
+              <span id="vital-unit-rad" class="text-xs text-white/45 font-mono">mSv/day</span>
+            </div>
+            <span id="vital-sub-rad" class="text-[11px] font-mono text-[#64D2FF]">Cumulative: 61.4 / 600 mSv NASA Limit</span>
+          </div>
+          <div class="w-full h-1.5 bg-white/[0.06] rounded-full mt-2 overflow-hidden">
+            <div id="vital-bar-rad" class="h-full bg-[#30D158] rounded-full transition-all duration-500" style="width: 10.2%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 24-Hour Circadian & NASA OSDR Reference Trend Analyzer -->
+      <div class="apple-glass rounded-2xl p-4 flex-1 flex flex-col justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h3 class="text-sm font-semibold tracking-tight text-white">
+              24-Hour Telemetry vs. NASA OSDR Baseline Cohort
+            </h3>
+            <p id="chart-subtitle" class="text-xs text-white/50 font-mono mt-0.5">
+              Comparing Subject vs. OSD-570 (Inspiration4) &amp; NASA Twins Study Reference
+            </p>
+          </div>
+          <div class="segmented-pill p-1 rounded-xl flex items-center gap-1">
+            <button data-metric="bci" class="trend-btn px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium bg-white/[0.12] text-white">BCI / rSO₂</button>
+            <button data-metric="co2" class="trend-btn px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium text-white/60 hover:text-white">ETCO₂</button>
+            <button data-metric="rad" class="trend-btn px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium text-white/60 hover:text-white">Dosimetry</button>
+            <button data-metric="sans" class="trend-btn px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium text-white/60 hover:text-white">SANS OCT</button>
+          </div>
+        </div>
+
+        <div class="relative w-full h-44 rounded-xl bg-[#07090E] border border-white/[0.06] p-2">
+          <canvas id="osdrTrendChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- RIGHT COLUMN (3 Cols): AUTONOMOUS TRIAGE + HANDS-FREE BCI + GAMIFIED XP -->
+    <!-- ======================================================================= -->
+    <section class="lg:col-span-3 flex flex-col gap-5">
+
+      <!-- 1. Autonomous Edge Flight Surgeon Triage Engine -->
+      <div id="triage-panel" class="apple-glass rounded-2xl p-4 flex flex-col transition-all">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <div class="flex items-center gap-2">
+            <span id="triage-dot" class="w-2.5 h-2.5 rounded-full bg-[#30D158]"></span>
+            <h2 class="text-sm font-semibold tracking-tight text-white">
+              Autonomous Flight Surgeon
+            </h2>
+          </div>
+          <span id="triage-risk-pill" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158] border border-[#30D158]/30">
+            RISK SCORE: 08/100
+          </span>
+        </div>
+
+        <p class="text-[11px] font-mono text-white/45 mb-3">
+          Zero-Earth-Comms Edge Decision Support (OWLT 14m 22s)
+        </p>
+
+        <!-- Primary Clinical Assessment Box -->
+        <div id="triage-diagnosis-box" class="p-3 rounded-xl bg-[#30D158]/10 border border-[#30D158]/30 text-xs mb-3">
+          <div id="triage-headline" class="font-mono font-semibold text-[#30D158] uppercase text-[10px] tracking-wider mb-1">
+            CLINICAL ASSESSMENT: NOMINAL ADAPTATION
+          </div>
+          <p id="triage-narrative" class="text-white/85 leading-relaxed">
+            Prefrontal fNIRS oxygenation (71.4%), end-tidal CO₂ (38 mmHg), and autonomic HRV (68 ms) are stable within NASA-STD-3001 thresholds. No acute countermeasure required.
+          </p>
+        </div>
+
+        <!-- Prioritized Autonomous Action Protocol -->
+        <div class="text-[10px] font-mono uppercase tracking-wider text-white/50 mb-1.5">
+          Prescribed Crew Countermeasures:
+        </div>
+        <div id="triage-protocol-list" class="space-y-1.5 text-xs">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- 2. BCI Hands-Free Motor-Imagery & P300 Command Simulator -->
+      <div class="apple-glass rounded-2xl p-4 flex flex-col">
+        <div class="flex items-center justify-between gap-2 mb-1">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#0A84FF]"></span>
+            <h3 class="text-sm font-semibold tracking-tight text-white">
+              Hands-Free BCI Neural Command
+            </h3>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#0A84FF]/15 text-[#64D2FF] border border-[#0A84FF]/30">
+            P300 / MI DECODER
+          </span>
+        </div>
+        <p class="text-xs text-white/50 mb-3">
+          Enables an incapacitated or spacewalking astronaut to execute emergency suit/medical actions via neural intent alone:
+        </p>
+
+        <div class="grid grid-cols-1 gap-2">
+          <button data-bci-cmd="PURGE_O2" class="bci-cmd-btn px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-[#0A84FF]/20 border border-white/[0.08] hover:border-[#0A84FF]/50 transition text-left flex items-center justify-between group">
+            <div>
+              <div class="text-xs font-medium text-white group-hover:text-[#64D2FF]">Trigger Suit O₂ LiOH Purge</div>
+              <div class="text-[10px] font-mono text-white/45">Motor Imagery (12 Hz SMR Lock)</div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/[0.06] text-white/70 group-hover:bg-[#0A84FF] group-hover:text-white">EXEC</span>
+          </button>
+
+          <button data-bci-cmd="HUD_OCT" class="bci-cmd-btn px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-[#0A84FF]/20 border border-white/[0.08] hover:border-[#0A84FF]/50 transition text-left flex items-center justify-between group">
+            <div>
+              <div class="text-xs font-medium text-white group-hover:text-[#64D2FF]">Log Visual Scotoma / SANS Marker</div>
+              <div class="text-[10px] font-mono text-white/45">P300 Evoked Potential Tag</div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/[0.06] text-white/70 group-hover:bg-[#0A84FF] group-hover:text-white">EXEC</span>
+          </button>
+
+          <button data-bci-cmd="BUDDY_BEACON" class="bci-cmd-btn px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-[#FF453A]/20 border border-white/[0.08] hover:border-[#FF453A]/50 transition text-left flex items-center justify-between group">
+            <div>
+              <div class="text-xs font-medium text-white group-hover:text-[#FF453A]">Transmit Silent EVA Distress Beacon</div>
+              <div class="text-[10px] font-mono text-white/45">Bilateral Jaw/Motor Intent Override</div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/[0.06] text-white/70 group-hover:bg-[#FF453A] group-hover:text-white">ALERT</span>
+          </button>
+        </div>
+
+        <!-- Live Neural Command Decoder Feedback -->
+        <div id="bci-cmd-feedback" class="mt-2.5 px-3 py-2 rounded-xl bg-[#07090E] border border-white/[0.06] text-[11px] font-mono text-[#64D2FF] tabular-nums">
+          [BCI IDLE] Awaiting prefrontal/sensorimotor intent trigger...
+        </div>
+      </div>
+
+      <!-- 3. Gamified Daily Countermeasure Regimen & Telemetry Audit Log -->
+      <div class="apple-glass rounded-2xl p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <h3 class="text-sm font-semibold tracking-tight text-white">
+              Daily Countermeasure Regimen
+            </h3>
+            <span id="cm-score-badge" class="px-2 py-0.5 rounded-lg bg-[#30D158]/15 border border-[#30D158]/30 font-mono text-xs font-semibold text-[#30D158] tabular-nums">
+              75% COMPLETE
+            </span>
+          </div>
+          <p class="text-xs text-white/50 mb-3">
+            Mitigates microgravity bone resorption, cephalad fluid shift &amp; renal calculus risk
+          </p>
+
+          <!-- Progress Bar -->
+          <div class="mb-3">
+            <div class="flex justify-between text-[10px] font-mono text-white/50 mb-1 tabular-nums">
+              <span>CREW PHYSIOLOGICAL COMPLIANCE</span>
+              <span id="cm-xp-label" class="text-white/90 font-semibold">375 / 500 PTS</span>
+            </div>
+            <div class="w-full h-2 bg-white/[0.06] rounded-full overflow-hidden">
+              <div id="cm-progress-bar" class="h-full bg-gradient-to-r from-[#0A84FF] to-[#30D158] rounded-full transition-all duration-500" style="width: 75%"></div>
+            </div>
+          </div>
+
+          <!-- Regimen Checkboxes -->
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] cursor-pointer transition">
+              <div class="flex items-center gap-2.5">
+                <input type="checkbox" checked data-pts="150" class="cm-check w-4 h-4 rounded accent-[#0A84FF] cursor-pointer" />
+                <div>
+                  <div class="font-medium text-white/90">ARED Resistive Protocol (90 min)</div>
+                  <div class="text-[10px] font-mono text-white/45">Squat/Deadlift loading • NTX suppression</div>
+                </div>
+              </div>
+              <span class="font-mono text-[10px] text-[#30D158] font-semibold">+150</span>
+            </label>
+
+            <label class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] cursor-pointer transition">
+              <div class="flex items-center gap-2.5">
+                <input type="checkbox" checked data-pts="125" class="cm-check w-4 h-4 rounded accent-[#0A84FF] cursor-pointer" />
+                <div>
+                  <div class="font-medium text-white/90">LBNP Negative Pressure Cuff (45 min)</div>
+                  <div class="text-[10px] font-mono text-white/45">-25 mmHg lower-body fluid draw (SANS)</div>
+                </div>
+              </div>
+              <span class="font-mono text-[10px] text-[#30D158] font-semibold">+125</span>
+            </label>
+
+            <label class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] cursor-pointer transition">
+              <div class="flex items-center gap-2.5">
+                <input type="checkbox" checked data-pts="100" class="cm-check w-4 h-4 rounded accent-[#0A84FF] cursor-pointer" />
+                <div>
+                  <div class="font-medium text-white/90">Potassium Citrate &amp; 2.6L Hydration</div>
+                  <div class="text-[10px] font-mono text-white/45">20 mEq oral • Renal calcium stone prophylaxis</div>
+                </div>
+              </div>
+              <span class="font-mono text-[10px] text-[#30D158] font-semibold">+100</span>
+            </label>
+
+            <label class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.15] cursor-pointer transition">
+              <div class="flex items-center gap-2.5">
+                <input type="checkbox" data-pts="125" class="cm-check w-4 h-4 rounded accent-[#0A84FF] cursor-pointer" />
+                <div>
+                  <div class="font-medium text-white/90">Bilateral Handheld OCT &amp; Tonometry</div>
+                  <div class="text-[10px] font-mono text-white/45">RNFL thickness &amp; ONSD ultrasound log</div>
+                </div>
+              </div>
+              <span class="font-mono text-[10px] text-[#64D2FF] font-semibold">+125</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Compact Flight Black-Box Telemetry Audit Log -->
+        <div class="mt-3 pt-2.5 border-t border-white/[0.06]">
+          <div class="flex items-center justify-between text-[10px] font-mono text-white/40 mb-1">
+            <span>FLIGHT MEDICAL AUDIT STREAM</span>
+            <span>NASA-STD-3001</span>
+          </div>
+          <div id="audit-log" class="max-h-20 overflow-y-auto space-y-1 text-[10px] font-mono text-white/70 tabular-nums">
+            <div class="text-[#30D158]">[142:08:44] CDR Vance telemetry locked. BCI impedance 8.4 kΩ.</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- NASA OSDR DATASETS & CLINICAL CITATIONS MODAL                             -->
+  <!-- ========================================================================= -->
+  <div id="osdr-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-xl p-4">
+    <div class="apple-glass rounded-3xl max-w-3xl w-full max-h-[88vh] overflow-y-auto p-6 border border-white/[0.14]">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-4 mb-5">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-widest text-[#64D2FF] font-semibold">
+            NASA SPACE APPS 2026 • TEAM NEURO VITALS
+          </span>
+          <h2 class="text-lg sm:text-xl font-semibold text-white tracking-tight mt-0.5">
+            NASA Open Science Data Repository (OSDR) &amp; Clinical Standards
+          </h2>
+        </div>
+        <button id="close-osdr-modal" class="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-mono text-white/80">
+          ✕ Close
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm text-white/75 leading-relaxed">
+        <div class="p-4 rounded-2xl bg-[#0A84FF]/10 border border-[#0A84FF]/30">
+          <h3 class="font-mono font-semibold text-[#64D2FF] text-xs uppercase tracking-wider mb-1">
+            Architectural Rationale: Non-Invasive In-Helmet BCI + Edge Triage
+          </h3>
+          <p>
+            During Artemis lunar south-pole EVAs and Mars transit (where one-way radio latency reaches <strong>4 to 22 minutes</strong>), crew members cannot rely on real-time ground flight surgeons during acute hypercapnia, hypoxia, or solar proton events. <strong>Neuro Vitals</strong> integrates non-invasive dry-electrode prefrontal EEG ($Fp1/Fp2$) and functional Near-Infrared Spectroscopy ($fNIRS$) directly into the helmet headband to quantify cerebral oxygenation ($rSO_2$) and cognitive fatigue ($\frac{\theta+\alpha}{\beta}$) while enabling hands-free P300/Motor-Imagery suit commands.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-2xl apple-glass-subtle">
+            <div class="font-mono font-semibold text-[#30D158] text-xs">OSD-570 / Inspiration4 Crew Biometrics</div>
+            <p class="text-xs text-white/60 mt-1">
+              Calibrates continuous orbital heart rate, HRV (RMSSD), SpO₂, sleep architecture, and neurocognitive reaction trajectories across orbital flight phases.
+            </p>
+          </div>
+          <div class="p-3.5 rounded-2xl apple-glass-subtle">
+            <div class="font-mono font-semibold text-[#30D158] text-xs">NASA Twins Study &amp; HRP SANS Cohort</div>
+            <p class="text-xs text-white/60 mt-1">
+              Models cephalad fluid shift, retinal nerve fiber layer (RNFL) thickening (µm), optic nerve sheath diameter (ONSD), and urinary NTX bone resorption markers.
+            </p>
+          </div>
+          <div class="p-3.5 rounded-2xl apple-glass-subtle">
+            <div class="font-mono font-semibold text-[#30D158] text-xs">NASA-STD-3001 Vol. 1 &amp; 2 PEL Thresholds</div>
+            <p class="text-xs text-white/60 mt-1">
+              Enforces official NASA Permissible Exposure Limits for suit $ppCO_2$ (&lt; 4.0 mmHg), cerebral $rSO_2$ (&gt; 60%), and career ionizing radiation limits (600 mSv).
+            </p>
+          </div>
+          <div class="p-3.5 rounded-2xl apple-glass-subtle">
+            <div class="font-mono font-semibold text-[#30D158] text-xs">RAD / TEPC Space Weather Dosimetry</div>
+            <p class="text-xs text-white/60 mt-1">
+              Simulates Tissue-Equivalent Proportional Counter (TEPC) dose rates during G4 Solar Particle Events and models acute lymphocyte count (ALC) suppression.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- CLINICAL REPORT EXPORT MODAL                                              -->
+  <!-- ========================================================================= -->
+  <div id="export-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-xl p-4">
+    <div class="apple-glass rounded-3xl max-w-2xl w-full p-6 border border-white/[0.14]">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 mb-4">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-widest text-[#30D158] font-semibold">
+            FHIR / NASA-STD-3001 TELEMETRY PACKET
+          </span>
+          <h3 class="text-base font-semibold text-white">Exported Flight Surgeon Clinical Log</h3>
+        </div>
+        <button id="close-export-modal" class="px-3 py-1 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-mono text-white/80">
+          ✕ Close
+        </button>
+      </div>
+      <pre id="export-json-pre" class="p-4 rounded-2xl bg-[#07090E] border border-white/[0.08] text-[11px] font-mono text-[#64D2FF] overflow-x-auto max-h-80 tabular-nums"></pre>
+      <div class="mt-4 flex items-center justify-end gap-2">
+        <button id="copy-export-btn" class="px-4 py-2 rounded-xl bg-[#0A84FF] hover:bg-[#0A84FF]/90 text-xs font-medium text-white transition">
+          Copy Telemetry Packet to Clipboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- APPLICATION BIOMEDICAL ENGINE & REAL-TIME OSCILLOSCOPE                    -->
+  <!-- ========================================================================= -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // -----------------------------------------------------------------------
+      // 1. CREW PROFILES & CLINICAL STATE DATABASE
+      // -----------------------------------------------------------------------
+      const crewProfiles = {
+        vance: { name: 'VANCE, E. (CDR)', role: 'EVA Lead', hrOffset: 0, bpSys: 116, bpDia: 74, rso2Offset: 0 },
+        chen: { name: 'CHEN, M. (MS-1)', role: 'Payload Specialist', hrOffset: 4, bpSys: 112, bpDia: 71, rso2Offset: 1.2 },
+        thorne: { name: 'THORNE, A. (FLT-SURG)', role: 'Flight Surgeon', hrOffset: -3, bpSys: 120, bpDia: 76, rso2Offset: -0.6 }
+      };
+
+      let currentCrew = 'vance';
+      let currentScenario = 'nominal';
+      let currentOrgan = 'cranial';
+      let activeTrendMetric = 'bci';
+
+      // Organ System Deep-Dive Clinical Reference Library
+      const organSystems = {
+        cranial: {
+          title: '01. Cranial / In-Helmet fNIRS + Dry-EEG BCI Array',
+          ref: 'Ref: NASA HRP / OSD-570',
+          patho: 'Cephalad fluid shift and localized CO₂ boundary layers in microgravity reduce prefrontal cerebral oxygenation (rSO₂) and elevate frontal Theta (4–8 Hz) spectral density prior to overt cognitive impairment or syncope.',
+          steps: [
+            'Verify frontal Fp1/Fp2 dry-electrode helmet liner impedance (< 12 kΩ).',
+            'Confirm dual-wavelength fNIRS prefrontal oxygenation rSO₂ ≥ 60% PEL.',
+            'Execute 30-second P300 / Motor-Imagery neural calibration lock.'
+          ]
+        },
+        ocular: {
+          title: '02. Ocular / SANS (Spaceflight Neuro-Ocular Syndrome)',
+          ref: 'Ref: NASA SANS Study / Twins Cohort',
+          patho: 'Unopposed headward venous and cerebrospinal fluid shift elevates intracranial pressure, distends the optic nerve sheath (ONSD > 5.8 mm), thickens the retinal nerve fiber layer (RNFL), and flattens the posterior scleral globe.',
+          steps: [
+            'Mount handheld Spectral-Domain OCT lens onto cabin tablet.',
+            'Measure peripapillary RNFL thickness (baseline ~295 µm; flag > 360 µm).',
+            'Perform B-scan ocular ultrasound to verify Optic Nerve Sheath Diameter (ONSD).'
+          ]
+        },
+        pulmonary: {
+          title: '03. Pulmonary Gas Exchange & Capnography',
+          ref: 'Ref: NASA-STD-3001 Vol. 2 (Suit ppCO₂)',
+          patho: 'Absence of convective sedimentation in 0g causes exhaled CO₂ pockets to accumulate around the astronaut face/helmet if ventilation fan flow degrades, triggering acute hypercapnia (ETCO₂ > 45 mmHg) and CO₂ narcosis.',
+          steps: [
+            'Inspect sidestream infrared capnograph waveform for alveolar plateau.',
+            'Verify EVA suit LiOH scrubber cartridge saturation & fan RPM.',
+            'Confirm arterial SpO₂ ≥ 92% and respiratory rate < 22 breaths/min.'
+          ]
+        },
+        cardio: {
+          title: '04. Cardiovascular & Autonomic Baroreflex',
+          ref: 'Ref: OSD-569 / Inspiration4 ECG Telemetry',
+          patho: 'Central blood volume shifts thoracic baroreceptors within hours of orbital insertion, triggering diuresis, a 10–15% plasma volume contraction, baroreflex attenuation, and post-flight/planetary orthostatic intolerance.',
+          steps: [
+            'Verify chest-strap Lead II ECG P-QRS-T morphology & QT interval.',
+            'Assess 5-minute vagal Heart Rate Variability (RMSSD > 45 ms target).',
+            'Don Lower Body Negative Pressure (LBNP) garment if orthostatic index drops.'
+          ]
+        },
+        hemato: {
+          title: '05. Hematological, Immune & Radiation Dosimetry',
+          ref: 'Ref: NASA RAD / TEPC Dosimetry Standard',
+          patho: 'Galactic Cosmic Rays (GCR) and Solar Particle Events (SPE) deliver high-LET ionizing protons that induce DNA double-strand breaks, acute lymphocyte count (ALC) depletion, and microvascular oxidative stress.',
+          steps: [
+            'Cross-check personal active dosimeter against cabin TEPC flux rate.',
+            'Perform fingerstick point-of-care capillary leukocyte/lymphocyte assay.',
+            'Retreat to high-hydrogen polyethylene storm shelter if flux > 1.5 mSv/hr.'
+          ]
+        },
+        musculo: {
+          title: '06. Musculoskeletal & Bone Mineral Density (BMD)',
+          ref: 'Ref: NASA HRP Bone Remodeling / ARED',
+          patho: 'Mechanical unloading uncouples osteoblast/osteoclast activity, causing 1.0–1.5% monthly trabecular bone mineral loss in the femoral neck and lumbar spine while liberating calcium into urine (nephrolithiasis risk).',
+          steps: [
+            'Upload daily ARED vacuum-cylinder squat & deadlift force-plate telemetry.',
+            'Run weekly urinary N-telopeptide (NTX) collagen crosslink dipstick assay.',
+            'Confirm 20 mEq Potassium Citrate & 2.6 L water intake to prevent renal stones.'
+          ]
+        }
+      };
+
+      // 4 Realistic Clinical Scenario Definitions
+      const scenarioDatabase = {
+        nominal: {
+          globalPill: { text: 'HOMEOSTATIC', cls: 'bg-[#30D158]/15 text-[#30D158] border-[#30D158]/30' },
+          env: { ppo2: '3.42 psi (21.2%)', ppo2Cls: 'text-[#30D158]', ppco2: '2.1 mmHg', ppco2Cls: 'text-[#30D158]', rad: '0.42 mSv/d', radCls: 'text-[#64D2FF]' },
+          nodeColors: { cranial: '#0A84FF', ocular: '#30D158', pulmonary: '#30D158', cardio: '#30D158', hemato: '#30D158', musculo: '#30D158' },
+          svgLabels: {
+            cranial: 'rSO₂ 71% • EEG',
+            ocular: 'IOP 14 mmHg',
+            pulmonary: 'SpO₂ 98% • ETCO₂',
+            cardio: '64 BPM • HRV 68ms',
+            hemato: '0.42 mSv/d • ALC',
+            musculo: 'DXA -0.4% • NTX'
+          },
+          psd: { theta: 18, alpha: 34, beta: 48, rso2: 71.4, ratio: '1.12' },
+          scope: { hr: 64, co2: 38, rr: 14, rhythm: 'Sinus Rhythm', thetaAmp: 5, alphaAmp: 12, betaAmp: 14 },
+          vitals: {
+            hr: { val: '64', sub: 'RMSSD: 68 ms • Normal', status: 'nominal', pill: 'NOMINAL' },
+            spo2: { val: '98%', unit: '/ 38 mmHg', sub: 'PEL: SpO₂ ≥ 92%', status: 'nominal', pill: 'NOMINAL' },
+            bp: { val: '116/74', sub: 'MAP: 88 mmHg • 0g Shift', status: 'nominal', pill: 'NOMINAL' },
+            sans: { val: '14', sub: 'RNFL: 298 µm • ONSD 5.1mm', status: 'nominal', pill: 'NOMINAL' },
+            metab: { val: '91', unit: 'mg/dL • 36.8°C', sub: 'Fasting euglycemic', status: 'nominal', pill: 'NOMINAL' },
+            sleep: { val: '7.4', sub: 'REM 23% • SWS 19%', status: 'nominal', pill: 'NOMINAL' },
+            rad: { val: '0.42', unit: 'mSv/day', sub: 'Cumulative: 61.4 / 600 mSv NASA Limit', status: 'nominal', pill: 'NOMINAL', barW: '10.2%', barCls: 'bg-[#30D158]' }
+          },
+          organReadouts: {
+            cranial: { text: 'rSO₂: 71.4% (PEL > 60%) • (θ+α)/β Fatigue Ratio: 1.12 • Impedance: 8.4 kΩ', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' },
+            ocular: { text: 'IOP: 14 mmHg • Peripapillary RNFL: 298 µm • ONSD: 5.1 mm (Normal < 5.8 mm)', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' },
+            pulmonary: { text: 'SpO₂: 98% • End-Tidal CO₂ (ETCO₂): 38 mmHg • Resp Rate: 14 /min', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' },
+            cardio: { text: 'Lead II HR: 64 BPM • HRV RMSSD: 68 ms • QTc: 408 ms (Normal)', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' },
+            hemato: { text: 'TEPC Dose: 0.42 mSv/day • ALC Lymphocytes: 2.1 x10³/µL (Normal)', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' },
+            musculo: { text: 'Femoral Neck DXA: -0.4% • Urinary NTX: 36 nM BCE/mM Cr • ARED: 96%', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' }
+          },
+          trends: {
+            bci: [71.0, 71.2, 70.8, 71.5, 71.1, 71.3, 71.4],
+            co2: [37, 38, 38, 37, 39, 38, 38],
+            rad: [0.40, 0.41, 0.42, 0.41, 0.43, 0.42, 0.42],
+            sans: [296, 297, 297, 298, 298, 298, 298]
+          },
+          triage: {
+            level: 'nominal',
+            score: 'RISK SCORE: 08/100',
+            headline: 'CLINICAL ASSESSMENT: NOMINAL ADAPTATION',
+            narrative: 'Prefrontal fNIRS oxygenation (71.4%), end-tidal CO₂ (38 mmHg), and autonomic HRV (68 ms) are stable within NASA-STD-3001 thresholds. No acute countermeasure required.',
+            protocols: [
+              'Maintain scheduled 90-minute ARED resistive loading and 2.6 L hydration.',
+              'Keep in-helmet BCI array in passive 256 Hz telemetry logging mode.'
+            ]
+          },
+          focusOrgan: 'cranial',
+          logMsg: 'Nominal orbital baseline restored. All 6 organ telemetry nodes within NASA-STD-3001 PEL.'
+        },
+
+        hypercapnia: {
+          globalPill: { text: 'CRITICAL: HYPERCAPNIA / HYPOXIA', cls: 'bg-[#FF453A]/20 text-[#FF453A] border-[#FF453A]/45 animate-pulse' },
+          env: { ppo2: '2.65 psi (16.4%)', ppo2Cls: 'text-[#FF453A]', ppco2: '6.8 mmHg (HIGH)', ppco2Cls: 'text-[#FF453A]', rad: '0.43 mSv/d', radCls: 'text-[#64D2FF]' },
+          nodeColors: { cranial: '#FF453A', ocular: '#FF9F0A', pulmonary: '#FF453A', cardio: '#FF453A', hemato: '#30D158', musculo: '#30D158' },
+          svgLabels: {
+            cranial: 'rSO₂ 54% • THETA!',
+            ocular: 'IOP 18 mmHg',
+            pulmonary: 'SpO₂ 88% • CO₂ 48',
+            cardio: '118 BPM • HRV 22ms',
+            hemato: '0.43 mSv/d • ALC',
+            musculo: 'DXA -0.4% • NTX'
+          },
+          psd: { theta: 56, alpha: 24, beta: 20, rso2: 54.2, ratio: '4.00' },
+          scope: { hr: 118, co2: 48, rr: 26, rhythm: 'Sinus Tachycardia', thetaAmp: 24, alphaAmp: 9, betaAmp: 6 },
+          vitals: {
+            hr: { val: '118', sub: 'RMSSD: 22 ms • Sympathetic', status: 'critical', pill: 'TACHYCARDIA' },
+            spo2: { val: '88%', unit: '/ 48 mmHg', sub: 'CRITICAL: Hypercapnic Hypoxia', status: 'critical', pill: 'PEL BREACH' },
+            bp: { val: '144/92', sub: 'MAP: 109 mmHg • CO₂ Vasodil.', status: 'caution', pill: 'ELEVATED' },
+            sans: { val: '18', sub: 'Hypercapnic ICP surge', status: 'caution', pill: 'CAUTION' },
+            metab: { val: '114', unit: 'mg/dL • 37.4°C', sub: 'Catecholamine stress', status: 'nominal', pill: 'NOMINAL' },
+            sleep: { val: '7.1', sub: 'Pre-EVA baseline normal', status: 'nominal', pill: 'NOMINAL' },
+            rad: { val: '0.43', unit: 'mSv/day', sub: 'Cumulative: 61.5 / 600 mSv NASA Limit', status: 'nominal', pill: 'NOMINAL', barW: '10.2%', barCls: 'bg-[#30D158]' }
+          },
+          organReadouts: {
+            cranial: { text: 'CRITICAL: Prefrontal rSO₂ dropped to 54.2% (PEL > 60%) • Theta Power 56% • Ratio: 4.00', status: '▲ PEL BREACH: HYPOXIA', cls: 'text-[#FF453A]' },
+            pulmonary: { text: 'CRITICAL: ETCO₂ 48 mmHg (Hypercapnia) • SpO₂ 88% • Helmet ppCO₂ 6.8 mmHg', status: '▲ PEL BREACH: CO₂ WASHOUT', cls: 'text-[#FF453A]' },
+            cardio: { text: 'Tachycardia 118 BPM • HRV suppressed to 22 ms secondary to chemoreceptor drive', status: '▲ AUTONOMIC STRESS', cls: 'text-[#FF453A]' },
+            ocular: { text: 'IOP transiently elevated to 18 mmHg due to hypercapnic cerebral vasodilation', status: '● CAUTION', cls: 'text-[#FF9F0A]' },
+            hemato: { text: 'TEPC Dose: 0.43 mSv/day • Acute arterial pH shift (respiratory acidosis)', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' },
+            musculo: { text: 'Femoral Neck DXA: -0.4% • Halt EVA physical exertion immediately', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' }
+          },
+          trends: {
+            bci: [71.2, 70.8, 69.5, 66.2, 61.4, 57.0, 54.2],
+            co2: [38, 38, 39, 41, 44, 46, 48],
+            rad: [0.41, 0.42, 0.42, 0.42, 0.43, 0.43, 0.43],
+            sans: [298, 298, 299, 301, 304, 306, 308]
+          },
+          triage: {
+            level: 'critical',
+            score: 'RISK SCORE: 92/100',
+            headline: 'EMERGENCY: EVA SUIT CO₂ WASHOUT FAILURE & CEREBRAL HYPOXIA',
+            narrative: 'In-helmet fNIRS rSO₂ fell to 54.2% alongside a 56% prefrontal Theta surge and ETCO₂ of 48 mmHg. Suit fan/LiOH scrubber saturation is causing acute CO₂ narcosis. Autonomous BCI hands-free alert armed.',
+            protocols: [
+              'IMMEDIATE: Actuate secondary 100% O₂ purge valve (or trigger via BCI Motor-Imagery command).',
+              'Abort EVA workload immediately; tether to airlock translation line to lower metabolic CO₂ output.',
+              'Switch PLSS ventilation loop to Aux Fan B until ETCO₂ < 40 mmHg and rSO₂ > 65%.'
+            ]
+          },
+          focusOrgan: 'pulmonary',
+          logMsg: 'ALERT: EVA Helmet ppCO₂ breached 6.8 mmHg (ETCO₂ 48 mmHg, rSO₂ 54.2%). Autonomous purge protocol armed.'
+        },
+
+        spe: {
+          globalPill: { text: 'WARNING: G4 SOLAR PARTICLE STORM', cls: 'bg-[#FF9F0A]/20 text-[#FF9F0A] border-[#FF9F0A]/45' },
+          env: { ppo2: '3.41 psi (21.1%)', ppo2Cls: 'text-[#30D158]', ppco2: '2.3 mmHg', ppco2Cls: 'text-[#30D158]', rad: '116.4 mSv/d (4.85/hr)', radCls: 'text-[#FF453A]' },
+          nodeColors: { cranial: '#FF9F0A', ocular: '#30D158', pulmonary: '#30D158', cardio: '#30D158', hemato: '#FF453A', musculo: '#FF9F0A' },
+          svgLabels: {
+            cranial: 'rSO₂ 68% • Phosphene',
+            ocular: 'IOP 15 mmHg',
+            pulmonary: 'SpO₂ 97% • ETCO₂',
+            cardio: '82 BPM • HRV 44ms',
+            hemato: '4.85 mSv/hr • SPE!',
+            musculo: 'Marrow Dosimetry'
+          },
+          psd: { theta: 29, alpha: 31, beta: 40, rso2: 68.1, ratio: '1.50' },
+          scope: { hr: 82, co2: 37, rr: 16, rhythm: 'Sinus Rhythm', thetaAmp: 11, alphaAmp: 13, betaAmp: 12 },
+          vitals: {
+            hr: { val: '82', sub: 'RMSSD: 44 ms • Mild Stress', status: 'nominal', pill: 'NOMINAL' },
+            spo2: { val: '97%', unit: '/ 37 mmHg', sub: 'Normoxic ventilation', status: 'nominal', pill: 'NOMINAL' },
+            bp: { val: '124/80', sub: 'MAP: 95 mmHg • Stable', status: 'nominal', pill: 'NOMINAL' },
+            sans: { val: '15', sub: 'Retinal Cerenkov phosphenes', status: 'nominal', pill: 'NOMINAL' },
+            metab: { val: '99', unit: 'mg/dL • 37.0°C', sub: 'Oxidative stress watch', status: 'nominal', pill: 'NOMINAL' },
+            sleep: { val: '6.2', sub: 'Shelter alarm fragmentation', status: 'caution', pill: 'FRAGMENTED' },
+            rad: { val: '4.85', unit: 'mSv/hr (SPE)', sub: 'Cumulative: 118.2 / 600 mSv (30-Day Limit Watch)', status: 'critical', pill: 'G4 PROTON FLUX', barW: '46%', barCls: 'bg-[#FF453A]' }
+          },
+          organReadouts: {
+            hemato: { text: 'CRITICAL: TEPC Proton Flux 4.85 mSv/hr (>100 MeV protons) • ALC Lymphocyte drop to 1.1 x10³/µL', status: '▲ ACUTE RADIATION FLUX', cls: 'text-[#FF453A]' },
+            cranial: { text: 'rSO₂: 68.1% • Crew reports visual Cerenkov light flashes (heavy ion retinal/optic tract transit)', status: '● NEURO-RADIATION WATCH', cls: 'text-[#FF9F0A]' },
+            musculo: { text: 'Iliac crest & vertebral bone marrow dose rate 3.9 mGy/hr; hematopoietic shielding required', status: '● MARROW SHIELDING REQ', cls: 'text-[#FF9F0A]' },
+            ocular: { text: 'IOP: 15 mmHg • Retinal photoreceptor phosphene events logged via BCI P300 tag', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' },
+            pulmonary: { text: 'SpO₂: 97% • ETCO₂: 37 mmHg • Cabin air filtration nominal', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' },
+            cardio: { text: 'HR: 82 BPM • HRV RMSSD: 44 ms • No acute arrhythmia', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' }
+          },
+          trends: {
+            bci: [71.4, 71.0, 70.2, 69.5, 69.0, 68.4, 68.1],
+            co2: [38, 38, 38, 37, 37, 37, 37],
+            rad: [0.42, 0.48, 4.20, 28.5, 64.0, 96.2, 116.4],
+            sans: [298, 298, 299, 299, 300, 300, 301]
+          },
+          triage: {
+            level: 'caution',
+            score: 'RISK SCORE: 78/100',
+            headline: 'WARNING: G4 SOLAR PARTICLE EVENT (SPE) DOSIMETRY SURGE',
+            narrative: 'Onboard TEPC sensor detected >100 MeV solar proton flux at 4.85 mSv/hr. Earth space-weather advisory delayed 14m 22s; autonomous edge triage directs immediate high-mass storm shelter configuration.',
+            protocols: [
+              'Relocate crew to Orion/Habitat central Storm Shelter surrounded by potable water stowage bags.',
+              'Administer oral radioprotective antioxidant regimen (N-acetylcysteine + selenomethionine).',
+              'Perform capillary lymphocyte count (ALC) at T+6h and T+24h to stage prodromal hematopoietic response.'
+            ]
+          },
+          focusOrgan: 'hemato',
+          logMsg: 'SPE G4 Proton Storm detected (4.85 mSv/hr). Autonomous storm shelter & hematological protocol initiated.'
+        },
+
+        sans: {
+          globalPill: { text: 'CAUTION: SANS GRADE II & CIRCADIAN DRIFT', cls: 'bg-[#FF9F0A]/20 text-[#FF9F0A] border-[#FF9F0A]/45' },
+          env: { ppo2: '3.42 psi (21.2%)', ppo2Cls: 'text-[#30D158]', ppco2: '2.4 mmHg', ppco2Cls: 'text-[#30D158]', rad: '0.42 mSv/d', radCls: 'text-[#64D2FF]' },
+          nodeColors: { cranial: '#FF9F0A', ocular: '#FF453A', pulmonary: '#30D158', cardio: '#30D158', hemato: '#30D158', musculo: '#FF9F0A' },
+          svgLabels: {
+            cranial: 'rSO₂ 66% • Sleep Debt',
+            ocular: 'RNFL 412µm • IOP 21',
+            pulmonary: 'SpO₂ 98% • ETCO₂',
+            cardio: '72 BPM • HRV 49ms',
+            hemato: '0.42 mSv/d • ALC',
+            musculo: 'DXA -1.3% • NTX High'
+          },
+          psd: { theta: 38, alpha: 36, beta: 26, rso2: 66.4, ratio: '2.85' },
+          scope: { hr: 72, co2: 39, rr: 15, rhythm: 'Sinus Rhythm', thetaAmp: 15, alphaAmp: 16, betaAmp: 8 },
+          vitals: {
+            hr: { val: '72', sub: 'RMSSD: 49 ms • Mild Fatigue', status: 'nominal', pill: 'NOMINAL' },
+            spo2: { val: '98%', unit: '/ 39 mmHg', sub: 'PEL: SpO₂ ≥ 92%', status: 'nominal', pill: 'NOMINAL' },
+            bp: { val: '126/82', sub: 'Cephalad venous engorgement', status: 'caution', pill: 'CAUTION' },
+            sans: { val: '21', sub: 'RNFL: 412 µm • ONSD 6.4mm', status: 'critical', pill: 'SANS GRADE II' },
+            metab: { val: '118', unit: 'mg/dL • 36.6°C', sub: 'Circadian insulin resistance', status: 'caution', pill: 'ELEVATED' },
+            sleep: { val: '4.8', sub: 'REM 12% • Melatonin Phase Shift', status: 'critical', pill: 'SLEEP DEBT' },
+            rad: { val: '0.42', unit: 'mSv/day', sub: 'Cumulative: 61.4 / 600 mSv NASA Limit', status: 'nominal', pill: 'NOMINAL', barW: '10.2%', barCls: 'bg-[#30D158]' }
+          },
+          organReadouts: {
+            ocular: { text: 'CRITICAL: OCT Peripapillary RNFL thickened to 412 µm • ONSD distended to 6.4 mm • IOP 21 mmHg', status: '▲ SANS GRADE II EDEMA', cls: 'text-[#FF453A]' },
+            cranial: { text: 'rSO₂: 66.4% • (θ+α)/β Fatigue Ratio elevated to 2.85 secondary to 4.8h circadian sleep debt', status: '● CIRCADIAN FATIGUE', cls: 'text-[#FF9F0A]' },
+            musculo: { text: 'Femoral Neck DXA: -1.3% • Urinary NTX elevated to 68 nM BCE/mM Cr', status: '● OSTEOCLAST ELEVATION', cls: 'text-[#FF9F0A]' },
+            pulmonary: { text: 'SpO₂: 98% • ETCO₂: 39 mmHg • Normal gas exchange', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' },
+            cardio: { text: 'HR: 72 BPM • Jugular venous distension noted on ultrasound', status: '● CEPHALAD SHIFT', cls: 'text-[#30D158]' },
+            hemato: { text: 'TEPC Dose: 0.42 mSv/day • One-carbon folate polymorphism watch', status: '● WITHIN NASA PEL', cls: 'text-[#30D158]' }
+          },
+          trends: {
+            bci: [71.0, 70.1, 69.2, 68.4, 67.5, 66.9, 66.4],
+            co2: [38, 38, 39, 39, 39, 39, 39],
+            rad: [0.42, 0.41, 0.42, 0.42, 0.42, 0.42, 0.42],
+            sans: [305, 322, 345, 368, 388, 402, 412]
+          },
+          triage: {
+            level: 'caution',
+            score: 'RISK SCORE: 69/100',
+            headline: 'CAUTION: SANS GRADE II OPTIC DISC EDEMA & CIRCADIAN DESYNCHRONY',
+            narrative: 'Handheld OCT reveals peripapillary retinal nerve fiber layer (RNFL) edema at 412 µm and optic nerve sheath distension (6.4 mm) paired with +1.25D hyperopic shift and 4.8h sleep restriction.',
+            protocols: [
+              'Initiate 60-minute Lower Body Negative Pressure (LBNP) at -25 mmHg to draw venous volume caudad.',
+              'Dispense adjustable +1.25D Space Anticipation Glasses & B-vitamin (methylfolate/B12) cofactor protocol.',
+              'Enforce 480 nm blue-enriched LED circadian phase alignment at 06:00 UTC.'
+            ]
+          },
+          focusOrgan: 'ocular',
+          logMsg: 'SANS Grade II Optic Disc Edema (RNFL 412 µm, ONSD 6.4 mm) flagged. LBNP & OCT monitoring prescribed.'
+        }
+      };
+
+      // -----------------------------------------------------------------------
+      // 2. HELPER FUNCTIONS FOR UI UPDATES
+      // -----------------------------------------------------------------------
+      function addAuditLog(message, color = 'text-[#64D2FF]') {
+        const logContainer = document.getElementById('audit-log');
+        const metStr = document.getElementById('met-clock').textContent.replace('MET ', '');
+        const item = document.createElement('div');
+        item.className = color;
+        item.textContent = `[${metStr}] ${message}`;
+        logContainer.prepend(item);
+      }
+
+      function renderOrganInspector(organKey) {
+        currentOrgan = organKey;
+        const sys = organSystems[organKey];
+        const sc = scenarioDatabase[currentScenario];
+        const readoutObj = sc.organReadouts[organKey];
+
+        document.getElementById('inspector-title').textContent = sys.title;
+        document.getElementById('inspector-nasa-ref').textContent = sys.ref;
+        document.getElementById('inspector-patho').textContent = sys.patho;
+
+        const statusBadge = document.getElementById('inspector-status-badge');
+        statusBadge.textContent = readoutObj.status;
+        statusBadge.className = `text-xs font-mono font-semibold ${readoutObj.cls}`;
+        document.getElementById('inspector-readout').textContent = readoutObj.text;
+
+        // Render checkable steps
+        const stepsContainer = document.getElementById('inspector-steps-container');
+        stepsContainer.innerHTML = sys.steps.map((stepText, idx) => `
+          <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] cursor-pointer transition">
+            <input type="checkbox" class="inspector-step-check mt-0.5 w-3.5 h-3.5 rounded accent-[#30D158] cursor-pointer" ${idx === 0 ? 'checked' : ''} />
+            <span class="text-xs text-white/80 leading-snug">${stepText}</span>
+          </label>
+        `).join('');
+
+        const updateStepCount = () => {
+          const all = stepsContainer.querySelectorAll('.inspector-step-check');
+          const checked = Array.from(all).filter(c => c.checked).length;
+          document.getElementById('inspector-step-progress').textContent = `${checked}/${all.length} Verified`;
+        };
+        stepsContainer.querySelectorAll('.inspector-step-check').forEach(cb => {
+          cb.addEventListener('change', updateStepCount);
+        });
+        updateStepCount();
+
+        // Update active button state
+        document.querySelectorAll('.organ-tab').forEach(btn => {
+          if (btn.dataset.organ === organKey) {
+            btn.className = 'organ-tab px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-[#0A84FF]/20 text-[#64D2FF] border border-[#0A84FF]/40 text-center transition';
+          } else {
+            btn.className = 'organ-tab px-2 py-1.5 rounded-lg text-[11px] font-mono font-medium bg-white/[0.03] text-white/60 border border-white/[0.06] hover:text-white text-center transition';
+          }
+        });
+      }
+
+      document.querySelectorAll('.anat-node, .organ-tab').forEach(el => {
+        el.addEventListener('click', () => {
+          renderOrganInspector(el.dataset.organ);
+        });
+      });
+
+      // -----------------------------------------------------------------------
+      // 3. REAL-TIME 60FPS 3-CHANNEL CLINICAL OSCILLOSCOPE (ECG, BCI, ETCO2)
+      // -----------------------------------------------------------------------
+      const scopeCanvas = document.getElementById('clinicalScopeCanvas');
+      const scopeCtx = scopeCanvas.getContext('2d');
+      let scopeFrozen = false;
+      let caliperMarkers = [];
+      let scopeTick = 0;
+
+      // History buffers for smooth scrolling sweep
+      const MAX_POINTS = 360;
+      const ecgBuffer = new Array(MAX_POINTS).fill(0);
+      const bciBuffer = new Array(MAX_POINTS).fill(0);
+      const co2Buffer = new Array(MAX_POINTS).fill(0);
+
+      function resizeScope() {
+        const rect = scopeCanvas.parentElement.getBoundingClientRect();
+        scopeCanvas.width = Math.max(300, rect.width - 16);
+        scopeCanvas.height = Math.max(180, rect.height - 16);
+      }
+      window.addEventListener('resize', resizeScope);
+      resizeScope();
+
+      // Realistic Lead II P-QRS-T synthetic generator
+      function sampleLeadIIECG(phase) {
+        // Normalize phase 0..1 per cardiac cycle
+        const p = phase % 1;
+        let v = 0;
+        // P wave
+        v += 0.14 * Math.exp(-Math.pow((p - 0.18) / 0.035, 2));
+        // Q dip
+        v -= 0.16 * Math.exp(-Math.pow((p - 0.28) / 0.012, 2));
+        // R spike
+        v += 1.15 * Math.exp(-Math.pow((p - 0.305) / 0.014, 2));
+        // S dip
+        v -= 0.26 * Math.exp(-Math.pow((p - 0.33) / 0.014, 2));
+        // T wave
+        v += 0.28 * Math.exp(-Math.pow((p - 0.54) / 0.055, 2));
+        return v;
+      }
+
+      function updateAndDrawScope() {
+        if (!scopeFrozen) {
+          const sc = scenarioDatabase[currentScenario];
+          const crew = crewProfiles[currentCrew];
+          const effectiveHR = sc.scope.hr + crew.hrOffset;
+          const beatsPerSec = effectiveHR / 60;
+
+          scopeTick += 1 / 60;
+
+          // 1. Sample ECG
+          const ecgPhase = scopeTick * beatsPerSec;
+          const ecgVal = sampleLeadIIECG(ecgPhase) + (Math.random() - 0.5) * 0.02;
+          ecgBuffer.push(ecgVal);
+          if (ecgBuffer.length > MAX_POINTS) ecgBuffer.shift();
+
+          // 2. Sample Prefrontal BCI (Theta + Alpha + Beta superposition)
+          const t = scopeTick * 2 * Math.PI;
+          const bciVal =
+            Math.sin(t * 5.5) * (sc.scope.thetaAmp / 28) +
+            Math.sin(t * 10.2) * (sc.scope.alphaAmp / 28) +
+            Math.sin(t * 21.5) * (sc.scope.betaAmp / 28) +
+            (Math.random() - 0.5) * 0.12;
+          bciBuffer.push(bciVal);
+          if (bciBuffer.length > MAX_POINTS) bciBuffer.shift();
+
+          // 3. Sample Capnogram (Trapezoidal alveolar CO2 waveform)
+          const respCyclesPerSec = sc.scope.rr / 60;
+          const rPhase = (scopeTick * respCyclesPerSec) % 1;
+          let co2Val = -0.4;
+          if (rPhase < 0.15) {
+            // Upstroke
+            co2Val = -0.4 + (rPhase / 0.15) * 0.9;
+          } else if (rPhase < 0.55) {
+            // Alveolar plateau (slight upward slope)
+            co2Val = 0.5 + ((rPhase - 0.15) / 0.4) * 0.18;
+          } else if (rPhase < 0.68) {
+            // Inspiratory downstroke
+            co2Val = 0.68 - ((rPhase - 0.55) / 0.13) * 1.08;
+          }
+          co2Val *= (sc.scope.co2 / 38);
+          co2Buffer.push(co2Val);
+          if (co2Buffer.length > MAX_POINTS) co2Buffer.shift();
+        }
+
+        // Render Canvas
+        const w = scopeCanvas.width;
+        const h = scopeCanvas.height;
+        scopeCtx.clearRect(0, 0, w, h);
+
+        // Channel horizontal dividers
+        scopeCtx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+        scopeCtx.lineWidth = 1;
+        [h * 0.34, h * 0.68].forEach(y => {
+          scopeCtx.beginPath();
+          scopeCtx.moveTo(0, y);
+          scopeCtx.lineTo(w, y);
+          scopeCtx.stroke();
+        });
+
+        const drawTrace = (buf, centerY, ampScale, strokeColor) => {
+          scopeCtx.beginPath();
+          scopeCtx.strokeStyle = strokeColor;
+          scopeCtx.lineWidth = 1.8;
+          for (let i = 0; i < buf.length; i++) {
+            const x = (i / (MAX_POINTS - 1)) * w;
+            const y = centerY - buf[i] * ampScale;
+            if (i === 0) scopeCtx.moveTo(x, y);
+            else scopeCtx.lineTo(x, y);
+          }
+          scopeCtx.stroke();
+        };
+
+        // CH1: ECG (#30D158)
+        drawTrace(ecgBuffer, h * 0.22, 28, '#30D158');
+        // CH2: BCI (#64D2FF)
+        drawTrace(bciBuffer, h * 0.52, 20, '#64D2FF');
+        // CH3: ETCO2 (#0A84FF)
+        drawTrace(co2Buffer, h * 0.86, 22, '#0A84FF');
+
+        // Draw any caliper event markers
+        caliperMarkers.forEach(m => {
+          scopeCtx.strokeStyle = 'rgba(255, 159, 10, 0.75)';
+          scopeCtx.setLineDash([3, 3]);
+          scopeCtx.beginPath();
+          scopeCtx.moveTo(m.x, 0);
+          scopeCtx.lineTo(m.x, h);
+          scopeCtx.stroke();
+          scopeCtx.setLineDash([]);
+          scopeCtx.fillStyle = '#FF9F0A';
+          scopeCtx.font = '10px JetBrains Mono';
+          scopeCtx.fillText(m.label, m.x + 4, 14);
+        });
+
+        requestAnimationFrame(updateAndDrawScope);
+      }
+      updateAndDrawScope();
+
+      // Freeze & Caliper Controls
+      const freezeBtn = document.getElementById('toggle-freeze-btn');
+      freezeBtn.addEventListener('click', () => {
+        scopeFrozen = !scopeFrozen;
+        freezeBtn.textContent = scopeFrozen ? 'Resume Sweep' : 'Freeze Trace';
+        const dot = document.getElementById('scope-live-dot');
+        dot.className = scopeFrozen
+          ? 'w-2 h-2 rounded-full bg-[#FF9F0A]'
+          : 'w-2 h-2 rounded-full bg-[#30D158] animate-pulse';
+      });
+
+      document.getElementById('drop-caliper-btn').addEventListener('click', () => {
+        const w = scopeCanvas.width;
+        const xPos = Math.floor(w * (0.35 + Math.random() * 0.5));
+        caliperMarkers.push({ x: xPos, label: `CALIPER ${caliperMarkers.length + 1}` });
+        if (caliperMarkers.length > 3) caliperMarkers.shift();
+        addAuditLog('Oscilloscope caliper marker dropped on Lead II / BCI trace.');
+      });
+
+      // -----------------------------------------------------------------------
+      // 4. 24-HOUR CIRCADIAN & NASA OSDR BENCHMARK CHART (Chart.js)
+      // -----------------------------------------------------------------------
+      const timeLabels = ['-24h', '-20h', '-16h', '-12h', '-8h', '-4h', 'NOW'];
+      const osdrBaselines = {
+        bci: { label: 'Subject Cerebral rSO₂ (%)', refLabel: 'NASA OSDR Baseline (71%)', refData: [71, 71, 71, 71, 71, 71, 71], color: '#64D2FF' },
+        co2: { label: 'Subject End-Tidal CO₂ (mmHg)', refLabel: 'NASA Nominal (38 mmHg)', refData: [38, 38, 38, 38, 38, 38, 38], color: '#0A84FF' },
+        rad: { label: 'TEPC Dose Rate (mSv/day)', refLabel: 'Deep-Space GCR Baseline (0.42)', refData: [0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42], color: '#FF9F0A' },
+        sans: { label: 'OCT RNFL Thickness (µm)', refLabel: 'Pre-Flight Cohort Mean (296 µm)', refData: [296, 296, 296, 296, 296, 296, 296], color: '#30D158' }
+      };
+
+      const chartCtx = document.getElementById('osdrTrendChart').getContext('2d');
+      const osdrChart = new Chart(chartCtx, {
+        type: 'line',
+        data: {
+          labels: timeLabels,
+          datasets: [
+            {
+              label: osdrBaselines.bci.label,
+              data: scenarioDatabase.nominal.trends.bci,
+              borderColor: '#64D2FF',
+              backgroundColor: 'rgba(100, 210, 255, 0.12)',
+              borderWidth: 2.2,
+              pointRadius: 3,
+              fill: true,
+              tension: 0.32
+            },
+            {
+              label: osdrBaselines.bci.refLabel,
+              data: osdrBaselines.bci.refData,
+              borderColor: 'rgba(255, 255, 255, 0.28)',
+              borderDash: [4, 4],
+              borderWidth: 1.4,
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: 'rgba(255,255,255,0.65)', font: { family: 'JetBrains Mono', size: 10 }, boxWidth: 12 }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: 'rgba(255,255,255,0.45)', font: { family: 'JetBrains Mono', size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: 'rgba(255,255,255,0.45)', font: { family: 'JetBrains Mono', size: 10 } }
+            }
+          }
+        }
+      });
+
+      function updateTrendChart(metricKey) {
+        activeTrendMetric = metricKey;
+        const meta = osdrBaselines[metricKey];
+        const sc = scenarioDatabase[currentScenario];
+
+        osdrChart.data.datasets[0].label = meta.label;
+        osdrChart.data.datasets[0].data = sc.trends[metricKey];
+        osdrChart.data.datasets[0].borderColor = meta.color;
+        osdrChart.data.datasets[0].backgroundColor = meta.color + '1F';
+
+        osdrChart.data.datasets[1].label = meta.refLabel;
+        osdrChart.data.datasets[1].data = meta.refData;
+        osdrChart.update();
+
+        document.querySelectorAll('.trend-btn').forEach(btn => {
+          if (btn.dataset.metric === metricKey) {
+            btn.className = 'trend-btn px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium bg-white/[0.12] text-white';
+          } else {
+            btn.className = 'trend-btn px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium text-white/60 hover:text-white';
+          }
+        });
+      }
+
+      document.querySelectorAll('.trend-btn').forEach(btn => {
+        btn.addEventListener('click', () => updateTrendChart(btn.dataset.metric));
+      });
+
+      // -----------------------------------------------------------------------
+      // 5. APPLY CLINICAL SCENARIO & CREW SWITCHING
+      // -----------------------------------------------------------------------
+      function setVitalCardStyle(cardKey, status, pillText) {
+        const card = document.getElementById(`vital-card-${cardKey}`);
+        const pill = document.getElementById(`vital-pill-${cardKey}`);
+        card.classList.remove('apple-glass', 'apple-glass-caution', 'apple-glass-critical');
+
+        if (status === 'critical') {
+          card.classList.add('apple-glass-critical');
+          pill.className = 'px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#FF453A]/20 text-[#FF453A] border border-[#FF453A]/40';
+        } else if (status === 'caution') {
+          card.classList.add('apple-glass-caution');
+          pill.className = 'px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#FF9F0A]/20 text-[#FF9F0A] border border-[#FF9F0A]/40';
+        } else {
+          card.classList.add('apple-glass');
+          pill.className = 'px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158]';
+        }
+        pill.textContent = pillText;
+      }
+
+      function applyScenario(scenarioKey) {
+        currentScenario = scenarioKey;
+        const sc = scenarioDatabase[scenarioKey];
+        const crew = crewProfiles[currentCrew];
+
+        // Global Anatomy Pill
+        const gPill = document.getElementById('anatomy-global-pill');
+        gPill.textContent = sc.globalPill.text;
+        gPill.className = `px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold border ${sc.globalPill.cls}`;
+
+        // Cabin Environment Bar
+        const ppo2El = document.getElementById('env-ppo2');
+        ppo2El.textContent = sc.env.ppo2;
+        ppo2El.className = sc.env.ppo2Cls;
+        const ppco2El = document.getElementById('env-ppco2');
+        ppco2El.textContent = sc.env.ppco2;
+        ppco2El.className = sc.env.ppco2Cls;
+        const radEl = document.getElementById('env-rad');
+        radEl.textContent = sc.env.rad;
+        radEl.className = sc.env.radCls;
+
+        // Update SVG Node Colors & Callout Text
+        Object.entries(sc.nodeColors).forEach(([organ, hex]) => {
+          const dot = document.getElementById(`dot-${organ}`);
+          const pulse = document.getElementById(`pulse-${organ}`);
+          const lbl = document.getElementById(`svg-val-${organ}`);
+          if (dot) dot.setAttribute('fill', hex);
+          if (pulse) pulse.setAttribute('stroke', hex);
+          if (lbl) {
+            lbl.textContent = sc.svgLabels[organ];
+            lbl.setAttribute('fill', hex);
+          }
+        });
+
+        // Update Scope Overlay Labels & PSD Bars
+        const adjHR = sc.scope.hr + crew.hrOffset;
+        document.getElementById('scope-hr-readout').textContent = `${adjHR} BPM • ${sc.scope.rhythm}`;
+        document.getElementById('scope-bci-readout').textContent = `Fatigue Ratio: ${sc.psd.ratio}`;
+        document.getElementById('scope-co2-readout').textContent = `${sc.scope.co2} mmHg • RR ${sc.scope.rr}/min`;
+
+        document.getElementById('psd-theta-val').textContent = `${sc.psd.theta}%`;
+        document.getElementById('psd-theta-bar').style.width = `${sc.psd.theta}%`;
+        document.getElementById('psd-alpha-val').textContent = `${sc.psd.alpha}%`;
+        document.getElementById('psd-alpha-bar').style.width = `${sc.psd.alpha}%`;
+        document.getElementById('psd-beta-val').textContent = `${sc.psd.beta}%`;
+        document.getElementById('psd-beta-bar').style.width = `${sc.psd.beta}%`;
+
+        const adjRso2 = (sc.psd.rso2 + crew.rso2Offset).toFixed(1);
+        document.getElementById('psd-rso2-val').textContent = `${adjRso2}%`;
+        document.getElementById('psd-rso2-bar').style.width = `${adjRso2}%`;
+
+        // Update 7 Vital Cards
+        Object.entries(sc.vitals).forEach(([k, v]) => {
+          if (k === 'hr') {
+            document.getElementById('vital-val-hr').textContent = String(Number(v.val) + crew.hrOffset);
+          } else {
+            document.getElementById(`vital-val-${k}`).textContent = v.val;
+          }
+          if (v.unit && document.getElementById(`vital-unit-${k}`)) {
+            document.getElementById(`vital-unit-${k}`).textContent = v.unit;
+          }
+          document.getElementById(`vital-sub-${k}`).textContent = v.sub;
+          setVitalCardStyle(k, v.status, v.pill);
+
+          if (k === 'rad') {
+            const bar = document.getElementById('vital-bar-rad');
+            bar.style.width = v.barW;
+            bar.className = `h-full rounded-full transition-all duration-500 ${v.barCls}`;
+          }
+        });
+
+        // Update Autonomous Triage Panel
+        const triagePanel = document.getElementById('triage-panel');
+        const triageBox = document.getElementById('triage-diagnosis-box');
+        const triageDot = document.getElementById('triage-dot');
+        const triagePill = document.getElementById('triage-risk-pill');
+        const triageHeadline = document.getElementById('triage-headline');
+
+        triagePanel.classList.remove('apple-glass', 'apple-glass-caution', 'apple-glass-critical');
+        if (sc.triage.level === 'critical') {
+          triagePanel.classList.add('apple-glass-critical');
+          triageBox.className = 'p-3 rounded-xl bg-[#FF453A]/15 border border-[#FF453A]/40 text-xs mb-3';
+          triageDot.className = 'w-2.5 h-2.5 rounded-full bg-[#FF453A] animate-ping';
+          triagePill.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#FF453A]/20 text-[#FF453A] border border-[#FF453A]/40';
+          triageHeadline.className = 'font-mono font-semibold text-[#FF453A] uppercase text-[10px] tracking-wider mb-1';
+        } else if (sc.triage.level === 'caution') {
+          triagePanel.classList.add('apple-glass-caution');
+          triageBox.className = 'p-3 rounded-xl bg-[#FF9F0A]/15 border border-[#FF9F0A]/40 text-xs mb-3';
+          triageDot.className = 'w-2.5 h-2.5 rounded-full bg-[#FF9F0A] animate-pulse';
+          triagePill.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#FF9F0A]/20 text-[#FF9F0A] border border-[#FF9F0A]/40';
+          triageHeadline.className = 'font-mono font-semibold text-[#FF9F0A] uppercase text-[10px] tracking-wider mb-1';
+        } else {
+          triagePanel.classList.add('apple-glass');
+          triageBox.className = 'p-3 rounded-xl bg-[#30D158]/10 border border-[#30D158]/30 text-xs mb-3';
+          triageDot.className = 'w-2.5 h-2.5 rounded-full bg-[#30D158]';
+          triagePill.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#30D158]/15 text-[#30D158] border border-[#30D158]/30';
+          triageHeadline.className = 'font-mono font-semibold text-[#30D158] uppercase text-[10px] tracking-wider mb-1';
+        }
+
+        triagePill.textContent = sc.triage.score;
+        triageHeadline.textContent = sc.triage.headline;
+        document.getElementById('triage-narrative').textContent = sc.triage.narrative;
+
+        const pList = document.getElementById('triage-protocol-list');
+        const idxColor = sc.triage.level === 'critical' ? 'text-[#FF453A]' : (sc.triage.level === 'caution' ? 'text-[#FF9F0A]' : 'text-[#30D158]');
+        pList.innerHTML = sc.triage.protocols.map((p, i) => `
+          <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+            <span class="font-mono font-bold ${idxColor} text-[11px]">0${i + 1}</span>
+            <span class="text-white/85 leading-snug">${p}</span>
+          </div>
+        `).join('');
+
+        // Highlight active scenario preset button
+        document.querySelectorAll('.scenario-btn').forEach(btn => {
+          if (btn.dataset.scenario === scenarioKey) {
+            btn.className = 'scenario-btn px-3 py-1.5 rounded-xl text-left transition-all border border-[#0A84FF]/60 bg-[#0A84FF]/15 flex items-center justify-between shadow-sm';
+          } else {
+            btn.className = 'scenario-btn px-3 py-1.5 rounded-xl text-left transition-all border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.05] flex items-center justify-between';
+          }
+        });
+
+        renderOrganInspector(sc.focusOrgan);
+        updateTrendChart(activeTrendMetric);
+        addAuditLog(sc.logMsg, sc.triage.level === 'critical' ? 'text-[#FF453A]' : (sc.triage.level === 'caution' ? 'text-[#FF9F0A]' : 'text-[#30D158]'));
+      }
+
+      document.querySelectorAll('.scenario-btn').forEach(btn => {
+        btn.addEventListener('click', () => applyScenario(btn.dataset.scenario));
+      });
+
+      // Crew Member Switcher
+      document.querySelectorAll('.crew-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentCrew = btn.dataset.crew;
+          const crew = crewProfiles[currentCrew];
+          document.getElementById('anat-subj-label').textContent = crew.name;
+
+          document.querySelectorAll('.crew-btn').forEach(b => {
+            if (b.dataset.crew === currentCrew) {
+              b.className = 'crew-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-white/[0.12] text-white shadow-sm flex items-center gap-2';
+            } else {
+              b.className = 'crew-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-white/60 hover:text-white flex items-center gap-2';
+            }
+          });
+
+          applyScenario(currentScenario);
+          addAuditLog(`Switched telemetry stream to ${crew.name} (${crew.role}).`);
+        });
+      });
+
+      // -----------------------------------------------------------------------
+      // 6. HANDS-FREE BCI NEURAL COMMAND SIMULATOR
+      // -----------------------------------------------------------------------
+      const bciFeedback = document.getElementById('bci-cmd-feedback');
+      document.querySelectorAll('.bci-cmd-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cmd = btn.dataset.bciCmd;
+          if (cmd === 'PURGE_O2') {
+            bciFeedback.textContent = '[SMR 12Hz LOCK: 99.1%] Actuating PLSS Aux O₂ Purge Valve... ppCO₂ clearing.';
+            bciFeedback.className = 'mt-2.5 px-3 py-2 rounded-xl bg-[#30D158]/15 border border-[#30D158]/40 text-[11px] font-mono text-[#30D158] tabular-nums';
+            addAuditLog('BCI HANDS-FREE COMMAND: Suit O₂ Purge Valve actuated via Motor Imagery.', 'text-[#30D158]');
+            if (currentScenario === 'hypercapnia') {
+              setTimeout(() => applyScenario('nominal'), 1600);
+            }
+          } else if (cmd === 'HUD_OCT') {
+            bciFeedback.textContent = '[P300 EVOKED TAG] Visual scotoma / Cerenkov phosphene timestamped to OCT log.';
+            bciFeedback.className = 'mt-2.5 px-3 py-2 rounded-xl bg-[#0A84FF]/15 border border-[#0A84FF]/40 text-[11px] font-mono text-[#64D2FF] tabular-nums';
+            addAuditLog('BCI HANDS-FREE COMMAND: Retinal phosphene / scotoma marker logged.', 'text-[#64D2FF]');
+          } else if (cmd === 'BUDDY_BEACON') {
+            bciFeedback.textContent = '[EMERGENCY OVERRIDE] Silent EVA distress telemetry transmitted to Habitat Airlock.';
+            bciFeedback.className = 'mt-2.5 px-3 py-2 rounded-xl bg-[#FF453A]/20 border border-[#FF453A]/50 text-[11px] font-mono text-[#FF453A] tabular-nums';
+            addAuditLog('CRITICAL BCI COMMAND: Silent EVA Distress Beacon broadcast to crew.', 'text-[#FF453A]');
+          }
+        });
+      });
+
+      // -----------------------------------------------------------------------
+      // 7. GAMIFIED COUNTERMEASURE REGIMEN TRACKER
+      // -----------------------------------------------------------------------
+      function updateCountermeasureScore() {
+        let pts = 0;
+        const maxPts = 500;
+        document.querySelectorAll('.cm-check').forEach(cb => {
+          if (cb.checked) pts += parseInt(cb.dataset.pts, 10);
+        });
+        const pct = Math.round((pts / maxPts) * 100);
+        document.getElementById('cm-xp-label').textContent = `${pts} / ${maxPts} PTS`;
+        document.getElementById('cm-score-badge').textContent = `${pct}% COMPLETE`;
+        document.getElementById('cm-progress-bar').style.width = `${pct}%`;
+      }
+
+      document.querySelectorAll('.cm-check').forEach(cb => {
+        cb.addEventListener('change', () => {
+          updateCountermeasureScore();
+          const title = cb.parentElement.querySelector('.font-medium').textContent;
+          addAuditLog(`Countermeasure regimen "${title}" marked ${cb.checked ? 'COMPLETE' : 'INCOMPLETE'}.`);
+        });
+      });
+
+      // -----------------------------------------------------------------------
+      // 8. LIVE MISSION ELAPSED TIME (MET) CLOCK
+      // -----------------------------------------------------------------------
+      let metSeconds = 142 * 86400 + 8 * 3600 + 44 * 60 + 19;
+      setInterval(() => {
+        metSeconds++;
+        const d = Math.floor(metSeconds / 86400);
+        const h = String(Math.floor((metSeconds % 86400) / 3600)).padStart(2, '0');
+        const m = String(Math.floor((metSeconds % 3600) / 60)).padStart(2, '0');
+        const s = String(metSeconds % 60).padStart(2, '0');
+        document.getElementById('met-clock').textContent = `MET ${d}:${h}:${m}:${s}`;
+      }, 1000);
+
+      // -----------------------------------------------------------------------
+      // 9. MODALS: NASA OSDR CITATIONS & FHIR/CLINICAL LOG EXPORT
+      // -----------------------------------------------------------------------
+      const osdrModal = document.getElementById('osdr-modal');
+      document.getElementById('open-osdr-modal').addEventListener('click', () => {
+        osdrModal.classList.remove('hidden');
+        osdrModal.classList.add('flex');
+      });
+      document.getElementById('close-osdr-modal').addEventListener('click', () => {
+        osdrModal.classList.add('hidden');
+        osdrModal.classList.remove('flex');
+      });
+
+      const exportModal = document.getElementById('export-modal');
+      document.getElementById('export-log-btn').addEventListener('click', () => {
+        const sc = scenarioDatabase[currentScenario];
+        const crew = crewProfiles[currentCrew];
+        const packet = {
+          mission: "ARTEMIS-IV DEEP SPACE TRANSIT",
+          system: "NEURO VITALS // HRP-BCI Flight Medical System",
+          standard: "NASA-STD-3001 Vol 1 & 2 / NASA OSDR Calibrated",
+          timestamp_met: document.getElementById('met-clock').textContent,
+          owlt_latency: "14m 22s (Autonomous Edge Mode)",
+          subject: crew.name,
+          clinical_scenario: currentScenario.toUpperCase(),
+          bci_neural_telemetry: {
+            prefrontal_rSO2_pct: sc.psd.rso2 + crew.rso2Offset,
+            theta_power_pct: sc.psd.theta,
+            alpha_power_pct: sc.psd.alpha,
+            beta_power_pct: sc.psd.beta,
+            fatigue_ratio: sc.psd.ratio
+          },
+          vitals: {
+            heart_rate_bpm: sc.scope.hr + crew.hrOffset,
+            spo2_and_etco2: `${sc.vitals.spo2.val} ${sc.vitals.spo2.unit}`,
+            blood_pressure_mmHg: sc.vitals.bp.val,
+            ocular_iop_mmHg: sc.vitals.sans.val,
+            tepc_radiation_dose: `${sc.vitals.rad.val} ${sc.vitals.rad.unit}`
+          },
+          autonomous_triage: {
+            risk_score: sc.triage.score,
+            assessment: sc.triage.headline,
+            prescribed_protocols: sc.triage.protocols
+          }
+        };
+        document.getElementById('export-json-pre').textContent = JSON.stringify(packet, null, 2);
+        exportModal.classList.remove('hidden');
+        exportModal.classList.add('flex');
+      });
+
+      document.getElementById('close-export-modal').addEventListener('click', () => {
+        exportModal.classList.add('hidden');
+        exportModal.classList.remove('flex');
+      });
+
+      document.getElementById('copy-export-btn').addEventListener('click', (e) => {
+        const text = document.getElementById('export-json-pre').textContent;
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        e.target.textContent = '✓ Copied Telemetry Packet';
+        setTimeout(() => { e.target.textContent = 'Copy Telemetry Packet to Clipboard'; }, 2000);
+      });
+
+      // Initialize default state
+      renderOrganInspector('cranial');
+      updateCountermeasureScore();
+    });
+  </script>
+</body>
+</html>
